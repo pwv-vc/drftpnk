@@ -120,7 +120,7 @@ The recommended flow. Generate an outline first, review it, then generate the fu
 flowchart LR
     A([idea.md]) --> B[drftpnk outline]
     B --> C([idea.blog-post.outline.md])
-    C --> D{review\n& edit}
+    C --> D{"review & edit"}
     D --> E[drftpnk post]
     A --> E
     E --> F([idea.blog-post.md])
@@ -153,14 +153,14 @@ Generate multiple content types from a single idea file.
 ```mermaid
 flowchart LR
     A([idea.md]) --> B[drftpnk outline]
-    A --> C[drftpnk outline\n--type tweet]
-    A --> D[drftpnk outline\n--type linkedin]
+    A --> C["drftpnk outline --type tweet"]
+    A --> D["drftpnk outline --type linkedin"]
     B --> E([idea.blog-post.outline.md])
     C --> F([idea.tweet.outline.md])
     D --> G([idea.linkedin.outline.md])
     E --> H[drftpnk post]
-    F --> I[drftpnk post\n--type tweet]
-    G --> J[drftpnk post\n--type linkedin]
+    F --> I["drftpnk post --type tweet"]
+    G --> J["drftpnk post --type linkedin"]
     A --> H
     A --> I
     A --> J
@@ -186,12 +186,12 @@ Create a new persona from writing samples, then use it.
 ```mermaid
 flowchart LR
     A([source URLs]) --> B[drftpnk personas create]
-    B --> C[scrape & analyze\nwriting style]
-    C --> D([~/.drftpnk/personas/\nname.json\nname/system_prompt.md\nname/blog-post.outline.md\n...])
-    D --> E{edit .md\nprompt files}
-    E --> F[drftpnk outline idea.md\n--persona name]
+    B --> C["scrape & analyze writing style"]
+    C --> D(["~/.drftpnk/personas/name/"])
+    D --> E{edit prompt files}
+    E --> F["drftpnk outline idea.md --persona name"]
     F --> G([idea.blog-post.outline.md])
-    G --> H[drftpnk post idea.md\n--persona name]
+    G --> H["drftpnk post idea.md --persona name"]
     H --> I([idea.blog-post.md])
 ```
 
