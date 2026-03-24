@@ -1,6 +1,8 @@
 # drftpnk
 
-**Persona-driven AI content generator**
+**Work it. Make it. Write it. Publish it.**
+
+*A nod to Daft Punk's "Harder, Better, Faster, Stronger."*
 
 Write blog posts, tweets, and LinkedIn posts in your voice — not a generic AI voice. drftpnk uses an outline-first workflow: generate structure, review it, then generate polished content guided by a persona style profile.
 
