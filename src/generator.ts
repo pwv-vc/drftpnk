@@ -1,6 +1,6 @@
 import { IdeaDocument } from './idea/types.js'
 import { Persona } from './personas/types.js'
-import { ContentTypePlugin } from './plugins/types.js'
+import { ContentTypePlugin, PromptPair } from './plugins/types.js'
 import { LLMProvider, LLMResponse } from './llm/types.js'
 import { createLLMProvider } from './llm/factory.js'
 import { DrftpnkConfig, LLMConfig, LLMOverride } from './config/types.js'
@@ -39,17 +39,48 @@ function buildVarMap(
   }
 }
 
+export interface PromptSources {
+  system: string
+  user: string
+}
+
+export function resolveOutlinePromptSources(persona: Persona, plugin: ContentTypePlugin): PromptSources {
+  const promptSet = persona.prompts?.[plugin.id]
+  return {
+    system: promptSet?.outlineSystem
+      ? `${persona.id}/${plugin.id}.outline.system.md`
+      : `${plugin.id} plugin (default)`,
+    user: promptSet?.outline
+      ? `${persona.id}/${plugin.id}.outline.md`
+      : `${plugin.id} plugin (default)`,
+  }
+}
+
+export function resolveContentPromptSources(persona: Persona, plugin: ContentTypePlugin): PromptSources {
+  const promptSet = persona.prompts?.[plugin.id]
+  return {
+    system: promptSet?.contentSystem
+      ? `${persona.id}/${plugin.id}.content.system.md`
+      : `${plugin.id} plugin (default)`,
+    user: promptSet?.content
+      ? `${persona.id}/${plugin.id}.content.md`
+      : `${plugin.id} plugin (default)`,
+  }
+}
+
 export function buildOutlinePrompt(
   idea: IdeaDocument,
   persona: Persona,
   plugin: ContentTypePlugin
-): string {
-  const customTemplate = persona.prompts?.[plugin.id]?.outline
-  if (customTemplate) {
-    const vars = buildVarMap(idea, persona, plugin)
-    return resolvePrompt(customTemplate, vars)
+): PromptPair {
+  const promptSet = persona.prompts?.[plugin.id]
+  const vars = buildVarMap(idea, persona, plugin)
+  const { system: defaultSystem, user: defaultUser } = plugin.defaultOutlinePrompt(idea, persona)
+
+  return {
+    system: promptSet?.outlineSystem ? resolvePrompt(promptSet.outlineSystem, vars) : defaultSystem,
+    user: promptSet?.outline ? resolvePrompt(promptSet.outline, vars) : defaultUser,
   }
-  return plugin.defaultOutlinePrompt(idea, persona)
 }
 
 export function buildContentPrompt(
@@ -57,13 +88,15 @@ export function buildContentPrompt(
   persona: Persona,
   plugin: ContentTypePlugin,
   outline?: string
-): string {
-  const customTemplate = persona.prompts?.[plugin.id]?.content
-  if (customTemplate) {
-    const vars = buildVarMap(idea, persona, plugin, outline)
-    return resolvePrompt(customTemplate, vars)
+): PromptPair {
+  const promptSet = persona.prompts?.[plugin.id]
+  const vars = buildVarMap(idea, persona, plugin, outline)
+  const { system: defaultSystem, user: defaultUser } = plugin.defaultContentPrompt(idea, persona, outline)
+
+  return {
+    system: promptSet?.contentSystem ? resolvePrompt(promptSet.contentSystem, vars) : defaultSystem,
+    user: promptSet?.content ? resolvePrompt(promptSet.content, vars) : defaultUser,
   }
-  return plugin.defaultContentPrompt(idea, persona, outline)
 }
 
 /**
@@ -109,10 +142,10 @@ export async function generate(
   }
   const provider: LLMProvider = createLLMProvider(llmConfig)
 
-  const prompt =
+  const { system, user } =
     mode === 'outline'
       ? buildOutlinePrompt(idea, persona, plugin)
       : buildContentPrompt(idea, persona, plugin, outlineText)
 
-  return provider.stream(prompt, undefined, onChunk)
+  return provider.stream(user, system, onChunk)
 }

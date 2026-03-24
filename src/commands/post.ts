@@ -8,7 +8,7 @@ import { parseIdeaFile } from '../idea/parser.js'
 import { loadConfig } from '../config/loader.js'
 import { loadPersona } from '../personas/index.js'
 import { pluginRegistry } from '../plugins/index.js'
-import { generate, buildContentPrompt, resolveModelConfig } from '../generator.js'
+import { generate, buildContentPrompt, resolveModelConfig, resolveContentPromptSources } from '../generator.js'
 import { formatOutput } from '../output/formatter.js'
 import { getOutputPath, writeOutput } from '../output/writer.js'
 import { promptAndPreview } from '../output/preview.js'
@@ -79,12 +79,21 @@ export function registerPostCommand(program: Command): void {
         debug('model:', `${resolvedLlm.model} · temp ${resolvedLlm.temperature} · max ${resolvedLlm.maxTokens} tokens`)
 
         if (opts.debug) {
-          const prompt = buildContentPrompt(idea, persona, plugin, outlineText)
-          debug('prompt:', `${prompt.length.toLocaleString('en-US')} chars`)
+          const { system, user } = buildContentPrompt(idea, persona, plugin, outlineText)
+          debug('system prompt:', `${system.length.toLocaleString('en-US')} chars`)
+          debug('user prompt:', `${user.length.toLocaleString('en-US')} chars`)
+        }
+
+        if (!opts.stdout) {
+          const sources = resolveContentPromptSources(persona, plugin)
+          const src = (s: string) => s.endsWith('.md') ? pc.white(s) : pc.dim(s)
+          console.log(pc.dim('  model   ') + pc.white(resolvedLlm.model))
+          console.log(pc.dim('  system  ') + src(sources.system))
+          console.log(pc.dim('  user    ') + src(sources.user))
         }
 
         const spinner = ora({
-          text: pc.dim(`Generating ${plugin.name} as ${persona.name} [${resolvedLlm.model}]...`),
+          text: pc.dim(`Generating ${plugin.name} as ${persona.name}...`),
           color: 'white',
         })
 

@@ -1,7 +1,8 @@
 import { IdeaDocument, ValidationResult } from '../idea/types.js'
 import { Persona } from '../personas/types.js'
 import { LLMResponse } from '../llm/types.js'
-import { ContentMeta, ContentTypePlugin } from './types.js'
+import { ContentMeta, ContentTypePlugin, PromptPair } from './types.js'
+import { resolveSystemPrompt } from './defaults.js'
 
 export const linkedinPlugin: ContentTypePlugin = {
   id: 'linkedin',
@@ -25,36 +26,32 @@ export const linkedinPlugin: ContentTypePlugin = {
     return { valid: errors.length === 0, errors }
   },
 
-  defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): string {
-    return `You are writing as ${persona.name}.
-
-${persona.system_prompt}
+  defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): PromptPair {
+    return {
+      system: resolveSystemPrompt(persona),
+      user: `Generate a LinkedIn post outline for ${persona.name}. Include a hook, 3 main points, and a closing question or call to action.
 
 Topic: ${idea.topic}
 Theme: ${idea.theme}
 Key Ideas: ${idea.keyIdeas.join(', ')}
 Goals: ${idea.goals.join(', ')}
 
-Generate a LinkedIn post outline. Include a hook, 3 main points, and a closing question or call to action.
-
-Return ONLY valid JSON: {"title": "<post hook/title>", "subtitle": "", "body": "<outline in markdown>"}`
+Return ONLY valid JSON: {"title": "<post hook/title>", "subtitle": "", "body": "<outline in markdown>"}`,
+    }
   },
 
-  defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): string {
-    return `You are writing as ${persona.name}.
-
-${persona.system_prompt}
-
-${persona.do_not ? `Do NOT:\n- ${persona.do_not.join('\n- ')}` : ''}
+  defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): PromptPair {
+    return {
+      system: resolveSystemPrompt(persona),
+      user: `Write a LinkedIn post as ${persona.name} (300-500 words). Use short paragraphs and line breaks. Open with a strong hook. End with a question or insight.
 
 Topic: ${idea.topic}
 Theme: ${idea.theme}
 Outline:
 ${outline ?? ''}
 
-Write a LinkedIn post (300-500 words). Use short paragraphs and line breaks. Open with a strong hook. End with a question or insight.
-
-Return ONLY valid JSON: {"title": "<hook line>", "subtitle": "", "body": "<post text, no markdown headers>"}`
+Return ONLY valid JSON: {"title": "<hook line>", "subtitle": "", "body": "<post text, no markdown headers>"}`,
+    }
   },
 
   formatOutline(response: LLMResponse): string {

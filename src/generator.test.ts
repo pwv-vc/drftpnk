@@ -15,7 +15,20 @@ const idea: IdeaDocument = {
   wordCountTarget: 900,
 }
 
-const personaWithPrompts: Persona = {
+const personaNoPrompts: Persona = {
+  id: 'bare-persona',
+  name: 'Bare Person',
+  description: 'No custom prompts',
+  style: {
+    voice: ['direct'],
+    domains: ['tech'],
+    signature_devices: ['analogy'],
+    tone_rules: ['be clear'],
+  },
+  system_prompt: 'You are Bare Person.',
+}
+
+const personaWithUserPrompts: Persona = {
   id: 'test-persona',
   name: 'Test Person',
   description: 'A test writer',
@@ -35,107 +48,297 @@ const personaWithPrompts: Persona = {
   },
 }
 
-const personaWithoutPrompts: Persona = {
-  id: 'bare-persona',
-  name: 'Bare Person',
-  description: 'No custom prompts',
-  style: {
-    voice: ['direct'],
-    domains: ['tech'],
-    signature_devices: ['analogy'],
-    tone_rules: ['be clear'],
+const personaWithSystemPrompts: Persona = {
+  ...personaNoPrompts,
+  prompts: {
+    'blog-post': {
+      outlineSystem: 'Custom system for {{persona_name}} outline.',
+      contentSystem: 'Custom system for {{persona_name}} content.',
+    },
   },
-  system_prompt: 'You are Bare Person.',
 }
 
-describe('buildOutlinePrompt', () => {
-  it('uses persona custom outline template when available', () => {
-    const prompt = buildOutlinePrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).toContain('Outline for Test Person')
+const personaWithAllPrompts: Persona = {
+  ...personaNoPrompts,
+  prompts: {
+    'blog-post': {
+      outlineSystem: 'Custom outline system for {{persona_name}}.',
+      outline: 'Custom outline user for {{topic}}.',
+      contentSystem: 'Custom content system for {{persona_name}}.',
+      content: 'Custom content user for {{topic}}. Outline: {{outline}}.',
+    },
+  },
+}
+
+// --- buildOutlinePrompt ---
+
+describe('buildOutlinePrompt — return shape', () => {
+  it('returns a PromptPair with system and user keys', () => {
+    const result = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(result).toHaveProperty('system')
+    expect(result).toHaveProperty('user')
   })
 
-  it('resolves {{persona_name}} in custom template', () => {
-    const prompt = buildOutlinePrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).toContain('Test Person')
-    expect(prompt).not.toContain('{{persona_name}}')
+  it('system and user are non-empty strings', () => {
+    const { system, user } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(typeof system).toBe('string')
+    expect(typeof user).toBe('string')
+    expect(system.length).toBeGreaterThan(0)
+    expect(user.length).toBeGreaterThan(0)
+  })
+})
+
+describe('buildOutlinePrompt — plugin defaults (no persona prompts)', () => {
+  it('system contains persona system_prompt', () => {
+    const { system } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(system).toContain('You are Bare Person.')
   })
 
-  it('resolves {{topic}} in custom template', () => {
-    const prompt = buildOutlinePrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).toContain('Why AI teams need taste')
+  it('system contains persona voice', () => {
+    const { system } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(system).toContain('direct')
   })
 
-  it('resolves {{theme}} in custom template', () => {
-    const prompt = buildOutlinePrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).toContain('Building taste like a record collection')
+  it('system contains persona tone rules', () => {
+    const { system } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(system).toContain('be clear')
+  })
+
+  it('user contains topic', () => {
+    const { user } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('Why AI teams need taste')
+  })
+
+  it('user contains theme', () => {
+    const { user } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('Building taste like a record collection')
+  })
+
+  it('user contains goals', () => {
+    const { user } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('Explain why taste matters')
+    expect(user).toContain('Connect to venture judgment')
+  })
+
+  it('user contains key ideas', () => {
+    const { user } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('Taste is pattern recognition')
+  })
+
+  it('user asks for 5 title options', () => {
+    const { user } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('5 title options')
+  })
+
+  it('user asks for 5-section outline', () => {
+    const { user } = buildOutlinePrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('5-section outline')
+  })
+})
+
+describe('buildOutlinePrompt — persona user override', () => {
+  it('user uses persona outline template instead of plugin default', () => {
+    const { user } = buildOutlinePrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).toContain('Outline for Test Person')
+  })
+
+  it('system falls back to plugin default when no outlineSystem provided', () => {
+    const { system } = buildOutlinePrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(system).toContain('You are Test Person, a writer.')
+  })
+
+  it('resolves {{persona_name}} in user template', () => {
+    const { user } = buildOutlinePrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).toContain('Test Person')
+    expect(user).not.toContain('{{persona_name}}')
+  })
+
+  it('resolves {{topic}} in user template', () => {
+    const { user } = buildOutlinePrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).toContain('Why AI teams need taste')
+  })
+
+  it('resolves {{theme}} in user template', () => {
+    const { user } = buildOutlinePrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).toContain('Building taste like a record collection')
   })
 
   it('resolves {{goals}} as joined list', () => {
-    const prompt = buildOutlinePrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).toContain('Explain why taste matters')
-    expect(prompt).toContain('Connect to venture judgment')
+    const { user } = buildOutlinePrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).toContain('Explain why taste matters')
+    expect(user).toContain('Connect to venture judgment')
   })
 
   it('resolves {{do_not}} from persona.do_not array', () => {
-    const prompt = buildOutlinePrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).toContain('use buzzwords')
-    expect(prompt).toContain('use passive voice')
+    const { user } = buildOutlinePrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).toContain('use buzzwords')
+    expect(user).toContain('use passive voice')
   })
 
   it('leaves unknown variables unreplaced', () => {
-    const persona = {
-      ...personaWithPrompts,
+    const persona: Persona = {
+      ...personaWithUserPrompts,
       prompts: { 'blog-post': { outline: 'Hello {{unknown_var}}' } },
     }
-    const prompt = buildOutlinePrompt(idea, persona, blogPostPlugin)
-    expect(prompt).toContain('{{unknown_var}}')
-  })
-
-  it('falls back to plugin default when persona has no custom prompt', () => {
-    const prompt = buildOutlinePrompt(idea, personaWithoutPrompts, blogPostPlugin)
-    expect(prompt).toContain('You are writing as Bare Person')
-  })
-
-  it('falls back to plugin default when persona has no prompts at all', () => {
-    const prompt = buildOutlinePrompt(idea, personaWithoutPrompts, blogPostPlugin)
-    expect(prompt).toContain(idea.topic)
+    const { user } = buildOutlinePrompt(idea, persona, blogPostPlugin)
+    expect(user).toContain('{{unknown_var}}')
   })
 })
 
-describe('buildContentPrompt', () => {
-  it('uses persona custom content template when available', () => {
-    const prompt = buildContentPrompt(idea, personaWithPrompts, blogPostPlugin, 'My outline text')
-    expect(prompt).toContain('Content for Test Person')
+describe('buildOutlinePrompt — persona system override', () => {
+  it('system uses persona outlineSystem template', () => {
+    const { system } = buildOutlinePrompt(idea, personaWithSystemPrompts, blogPostPlugin)
+    expect(system).toContain('Custom system for Bare Person outline.')
   })
 
-  it('resolves {{persona_id}} in custom template', () => {
-    const prompt = buildContentPrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).toContain('test-persona')
-    expect(prompt).not.toContain('{{persona_id}}')
+  it('user falls back to plugin default when no outline template provided', () => {
+    const { user } = buildOutlinePrompt(idea, personaWithSystemPrompts, blogPostPlugin)
+    expect(user).toContain('Why AI teams need taste')
+    expect(user).toContain('5 title options')
   })
 
-  it('resolves {{persona_description}} in custom template', () => {
-    const prompt = buildContentPrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).toContain('A test writer')
-    expect(prompt).not.toContain('{{persona_description}}')
+  it('resolves {{persona_name}} in outlineSystem template', () => {
+    const { system } = buildOutlinePrompt(idea, personaWithSystemPrompts, blogPostPlugin)
+    expect(system).not.toContain('{{persona_name}}')
+    expect(system).toContain('Bare Person')
+  })
+})
+
+describe('buildOutlinePrompt — full persona override (system + user)', () => {
+  it('system uses persona outlineSystem', () => {
+    const { system } = buildOutlinePrompt(idea, personaWithAllPrompts, blogPostPlugin)
+    expect(system).toContain('Custom outline system for Bare Person.')
+  })
+
+  it('user uses persona outline', () => {
+    const { user } = buildOutlinePrompt(idea, personaWithAllPrompts, blogPostPlugin)
+    expect(user).toContain('Custom outline user for Why AI teams need taste.')
+  })
+
+  it('plugin default user is not used when persona outline is set', () => {
+    const { user } = buildOutlinePrompt(idea, personaWithAllPrompts, blogPostPlugin)
+    expect(user).not.toContain('5 title options')
+  })
+
+  it('plugin default system is not used when persona outlineSystem is set', () => {
+    const { system } = buildOutlinePrompt(idea, personaWithAllPrompts, blogPostPlugin)
+    expect(system).not.toContain('You are Bare Person.')
+  })
+})
+
+// --- buildContentPrompt ---
+
+describe('buildContentPrompt — return shape', () => {
+  it('returns a PromptPair with system and user keys', () => {
+    const result = buildContentPrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(result).toHaveProperty('system')
+    expect(result).toHaveProperty('user')
+  })
+})
+
+describe('buildContentPrompt — plugin defaults (no persona prompts)', () => {
+  it('system contains persona system_prompt', () => {
+    const { system } = buildContentPrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(system).toContain('You are Bare Person.')
+  })
+
+  it('user contains topic', () => {
+    const { user } = buildContentPrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('Why AI teams need taste')
+  })
+
+  it('user contains theme', () => {
+    const { user } = buildContentPrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('Building taste like a record collection')
+  })
+
+  it('user contains key ideas', () => {
+    const { user } = buildContentPrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('Taste is pattern recognition')
+  })
+
+  it('user contains audience', () => {
+    const { user } = buildContentPrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('Founders and investors')
+  })
+
+  it('user contains word count target', () => {
+    const { user } = buildContentPrompt(idea, personaNoPrompts, blogPostPlugin)
+    expect(user).toContain('900')
+  })
+
+  it('user includes outline when provided', () => {
+    const { user } = buildContentPrompt(idea, personaNoPrompts, blogPostPlugin, 'My outline text')
+    expect(user).toContain('My outline text')
+  })
+})
+
+describe('buildContentPrompt — persona user override', () => {
+  it('user uses persona content template', () => {
+    const { user } = buildContentPrompt(idea, personaWithUserPrompts, blogPostPlugin, 'My outline text')
+    expect(user).toContain('Content for Test Person')
+  })
+
+  it('system falls back to plugin default when no contentSystem provided', () => {
+    const { system } = buildContentPrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(system).toContain('You are Test Person, a writer.')
+  })
+
+  it('resolves {{persona_id}} in content template', () => {
+    const { user } = buildContentPrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).toContain('test-persona')
+    expect(user).not.toContain('{{persona_id}}')
+  })
+
+  it('resolves {{persona_description}} in content template', () => {
+    const { user } = buildContentPrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).toContain('A test writer')
+    expect(user).not.toContain('{{persona_description}}')
   })
 
   it('resolves {{outline}} with provided outline text', () => {
-    const prompt = buildContentPrompt(idea, personaWithPrompts, blogPostPlugin, 'My outline text')
-    expect(prompt).toContain('My outline text')
-    expect(prompt).not.toContain('{{outline}}')
+    const { user } = buildContentPrompt(idea, personaWithUserPrompts, blogPostPlugin, 'My outline text')
+    expect(user).toContain('My outline text')
+    expect(user).not.toContain('{{outline}}')
   })
 
   it('resolves {{outline}} to empty string when no outline provided', () => {
-    const prompt = buildContentPrompt(idea, personaWithPrompts, blogPostPlugin)
-    expect(prompt).not.toContain('{{outline}}')
-  })
-
-  it('falls back to plugin default when persona has no custom content prompt', () => {
-    const prompt = buildContentPrompt(idea, personaWithoutPrompts, blogPostPlugin, 'outline text')
-    expect(prompt).toContain('You are writing as Bare Person')
+    const { user } = buildContentPrompt(idea, personaWithUserPrompts, blogPostPlugin)
+    expect(user).not.toContain('{{outline}}')
   })
 })
+
+describe('buildContentPrompt — persona system override', () => {
+  it('system uses persona contentSystem template', () => {
+    const { system } = buildContentPrompt(idea, personaWithSystemPrompts, blogPostPlugin)
+    expect(system).toContain('Custom system for Bare Person content.')
+  })
+
+  it('user falls back to plugin default when no content template provided', () => {
+    const { user } = buildContentPrompt(idea, personaWithSystemPrompts, blogPostPlugin)
+    expect(user).toContain('Why AI teams need taste')
+  })
+})
+
+describe('buildContentPrompt — full persona override (system + user)', () => {
+  it('system uses persona contentSystem', () => {
+    const { system } = buildContentPrompt(idea, personaWithAllPrompts, blogPostPlugin)
+    expect(system).toContain('Custom content system for Bare Person.')
+  })
+
+  it('user uses persona content template', () => {
+    const { user } = buildContentPrompt(idea, personaWithAllPrompts, blogPostPlugin, 'outline text')
+    expect(user).toContain('Custom content user for Why AI teams need taste.')
+    expect(user).toContain('outline text')
+  })
+
+  it('plugin default user is not used when persona content is set', () => {
+    const { user } = buildContentPrompt(idea, personaWithAllPrompts, blogPostPlugin)
+    expect(user).not.toContain('CORE WRITING PATTERN')
+  })
+})
+
+// --- resolveModelConfig ---
 
 const baseConfig: DrftpnkConfig = {
   default_persona: 'test-persona',
@@ -147,7 +350,7 @@ const baseConfig: DrftpnkConfig = {
 
 describe('resolveModelConfig', () => {
   it('returns global config defaults when no overrides exist', () => {
-    const result = resolveModelConfig(baseConfig, personaWithoutPrompts, blogPostPlugin)
+    const result = resolveModelConfig(baseConfig, personaNoPrompts, blogPostPlugin)
     expect(result.model).toBe('gpt-4o')
     expect(result.temperature).toBe(0.7)
     expect(result.maxTokens).toBe(4000)
@@ -159,7 +362,7 @@ describe('resolveModelConfig', () => {
       ...baseConfig,
       llm_by_content_type: { tweet: { model: 'gpt-4o-mini' } },
     }
-    const result = resolveModelConfig(config, personaWithoutPrompts, tweetPlugin)
+    const result = resolveModelConfig(config, personaNoPrompts, tweetPlugin)
     expect(result.model).toBe('gpt-4o-mini')
   })
 
@@ -168,12 +371,12 @@ describe('resolveModelConfig', () => {
       ...baseConfig,
       llm_by_content_type: { tweet: { model: 'gpt-4o-mini' } },
     }
-    const result = resolveModelConfig(config, personaWithoutPrompts, blogPostPlugin)
+    const result = resolveModelConfig(config, personaNoPrompts, blogPostPlugin)
     expect(result.model).toBe('gpt-4o')
   })
 
   it('applies persona-level model override', () => {
-    const persona = { ...personaWithoutPrompts, llm: { model: 'gpt-4-turbo' } }
+    const persona = { ...personaNoPrompts, llm: { model: 'gpt-4-turbo' } }
     const result = resolveModelConfig(baseConfig, persona, blogPostPlugin)
     expect(result.model).toBe('gpt-4-turbo')
   })
@@ -183,14 +386,14 @@ describe('resolveModelConfig', () => {
       ...baseConfig,
       llm_by_content_type: { 'blog-post': { model: 'gpt-4o-mini' } },
     }
-    const persona = { ...personaWithoutPrompts, llm: { model: 'gpt-4-turbo' } }
+    const persona = { ...personaNoPrompts, llm: { model: 'gpt-4-turbo' } }
     const result = resolveModelConfig(config, persona, blogPostPlugin)
     expect(result.model).toBe('gpt-4-turbo')
   })
 
   it('applies persona per-content-type override', () => {
     const persona = {
-      ...personaWithoutPrompts,
+      ...personaNoPrompts,
       llm_by_content_type: { tweet: { model: 'gpt-4o-mini', temperature: 0.9 } },
     }
     const result = resolveModelConfig(baseConfig, persona, tweetPlugin)
@@ -200,7 +403,7 @@ describe('resolveModelConfig', () => {
 
   it('persona per-content-type wins over persona default', () => {
     const persona = {
-      ...personaWithoutPrompts,
+      ...personaNoPrompts,
       llm: { model: 'gpt-4-turbo' },
       llm_by_content_type: { tweet: { model: 'gpt-4o-mini' } },
     }
@@ -214,7 +417,7 @@ describe('resolveModelConfig', () => {
       llm_by_content_type: { tweet: { model: 'gpt-3.5-turbo' } },
     }
     const persona = {
-      ...personaWithoutPrompts,
+      ...personaNoPrompts,
       llm: { model: 'gpt-4-turbo' },
       llm_by_content_type: { tweet: { model: 'gpt-4o-mini' } },
     }
@@ -227,14 +430,14 @@ describe('resolveModelConfig', () => {
       ...baseConfig,
       llm_by_content_type: { tweet: { temperature: 0.5 } },
     }
-    const persona = { ...personaWithoutPrompts, llm: { model: 'gpt-4-turbo' } }
+    const persona = { ...personaNoPrompts, llm: { model: 'gpt-4-turbo' } }
     const result = resolveModelConfig(config, persona, tweetPlugin)
     expect(result.model).toBe('gpt-4-turbo')
     expect(result.temperature).toBe(0.5)
   })
 
   it('falls back to global defaults for unset fields in partial overrides', () => {
-    const persona = { ...personaWithoutPrompts, llm: { model: 'gpt-4o-mini' } }
+    const persona = { ...personaNoPrompts, llm: { model: 'gpt-4o-mini' } }
     const result = resolveModelConfig(baseConfig, persona, blogPostPlugin)
     expect(result.model).toBe('gpt-4o-mini')
     expect(result.temperature).toBe(0.7)
@@ -243,7 +446,7 @@ describe('resolveModelConfig', () => {
   })
 
   it('persona can override provider', () => {
-    const persona = { ...personaWithoutPrompts, llm: { provider: 'anthropic' as const } }
+    const persona = { ...personaNoPrompts, llm: { provider: 'anthropic' as const } }
     const result = resolveModelConfig(baseConfig, persona, blogPostPlugin)
     expect(result.provider).toBe('anthropic')
   })

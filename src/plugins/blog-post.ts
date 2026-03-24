@@ -1,7 +1,8 @@
 import { IdeaDocument, ValidationResult } from '../idea/types.js'
 import { Persona } from '../personas/types.js'
 import { LLMResponse } from '../llm/types.js'
-import { ContentMeta, ContentTypePlugin } from './types.js'
+import { ContentMeta, ContentTypePlugin, PromptPair } from './types.js'
+import { resolveSystemPrompt } from './defaults.js'
 
 export const blogPostPlugin: ContentTypePlugin = {
   id: 'blog-post',
@@ -21,12 +22,11 @@ export const blogPostPlugin: ContentTypePlugin = {
     return { valid: errors.length === 0, errors }
   },
 
-  defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): string {
-    return `You are writing as ${persona.name}.
+  defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): PromptPair {
+    return {
+      system: resolveSystemPrompt(persona),
 
-${persona.system_prompt}
-
-Given the topic, theme, and bullet points below, produce:
+      user: `Given the topic, theme, and bullet points below, produce:
 1. 5 title options
 2. 3 subtitle options
 3. a 5-section outline
@@ -35,21 +35,20 @@ Given the topic, theme, and bullet points below, produce:
 
 Topic: ${idea.topic}
 Theme / Metaphor: ${idea.theme}
+Goals:
+${idea.goals.map((g) => `- ${g}`).join('\n')}
 Bullet points:
 ${idea.keyIdeas.map((k) => `- ${k}`).join('\n')}
 
-Voice: ${persona.style.voice.join(', ')}
-Signature devices: ${persona.style.signature_devices.join(', ')}
-
-Return ONLY valid JSON: {"title": "<best title>", "subtitle": "<one-line thesis>", "body": "<full structured outline in markdown with all 5 titles, 3 subtitles, 5-section outline, thesis, and metaphorical frame>"}`
+Return ONLY valid JSON: {"title": "<best title>", "subtitle": "<one-line thesis>", "body": "<full structured outline in markdown with all 5 titles, 3 subtitles, 5-section outline, thesis, and metaphorical frame>"}`,
+    }
   },
 
-  defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): string {
-    return `You are writing as ${persona.name} for a PWV blog post.
+  defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): PromptPair {
+    return {
+      system: resolveSystemPrompt(persona),
 
-${persona.system_prompt}
-
-${persona.do_not ? `Do NOT:\n- ${persona.do_not.join('\n- ')}` : ''}
+      user: `Write a blog post as ${persona.name}.
 
 STYLE TO MATCH
 - Reflective, confident, warm, and clear
@@ -65,12 +64,6 @@ CORE WRITING PATTERN
 3. Connect that frame to a concrete point about startups, AI, investing, founder behavior, product judgment, or market timing.
 4. Include a few grounded specifics from the input, but do not overload the piece with detail.
 5. End by returning to the original metaphor and landing on a clear insight.
-
-PWV-SPECIFIC RULES
-- The post should feel native to PWV: founder-respectful, anti-hype, long-term, and judgment-oriented.
-- Emphasize teams, taste, leverage, timing, trajectory, tools, infrastructure, or market formation when relevant.
-- Avoid generic venture clichés and empty optimism.
-- Never sound like a press release.
 
 NEVER USE — AI CLICHÉS AND BANNED PATTERNS
 - No em dashes (—). Use commas, colons, or restructure the sentence.
@@ -101,7 +94,8 @@ QUALITY CHECK BEFORE FINALIZING
 - Is there at least one sharp line worth quoting?
 - Does the ending close the loop instead of just fading out?
 
-Return ONLY valid JSON: {"title": "<post title>", "subtitle": "<one-line subtitle>", "body": "<full post in markdown, no frontmatter>"}`
+Return ONLY valid JSON: {"title": "<post title>", "subtitle": "<one-line subtitle>", "body": "<full post in markdown, no frontmatter>"}`,
+    }
   },
 
   formatOutline(response: LLMResponse): string {

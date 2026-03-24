@@ -6,7 +6,9 @@ export interface PersonaStyle {
 }
 
 export interface PersonaPromptSet {
+  outlineSystem?: string
   outline?: string
+  contentSystem?: string
   content?: string
 }
 

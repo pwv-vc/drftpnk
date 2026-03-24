@@ -11,12 +11,24 @@ function loadPromptFiles(personaDir: string): PersonaPrompts {
   if (!existsSync(personaDir)) return prompts
 
   for (const file of readdirSync(personaDir)) {
-    const match = file.match(/^(.+)\.(outline|content)\.md$/)
-    if (!match) continue
-    const [, type, mode] = match
     const content = readFileSync(join(personaDir, file), 'utf-8').trim()
-    if (!prompts[type]) prompts[type] = {}
-    prompts[type][mode as 'outline' | 'content'] = content
+
+    let match: RegExpMatchArray | null
+
+    match = file.match(/^(.+)\.(outline|content)\.system\.md$/)
+    if (match) {
+      const [, type, mode] = match
+      if (!prompts[type]) prompts[type] = {}
+      prompts[type][mode === 'outline' ? 'outlineSystem' : 'contentSystem'] = content
+      continue
+    }
+
+    match = file.match(/^(.+)\.(outline|content)\.md$/)
+    if (match) {
+      const [, type, mode] = match
+      if (!prompts[type]) prompts[type] = {}
+      prompts[type][mode as 'outline' | 'content'] = content
+    }
   }
 
   return prompts
@@ -95,12 +107,10 @@ export function savePersona(persona: Persona, global = false): void {
   if (prompts) {
     if (!existsSync(personaDir)) mkdirSync(personaDir, { recursive: true })
     for (const [type, promptSet] of Object.entries(prompts)) {
-      if (promptSet.outline) {
-        writeFileSync(join(personaDir, `${type}.outline.md`), promptSet.outline + '\n')
-      }
-      if (promptSet.content) {
-        writeFileSync(join(personaDir, `${type}.content.md`), promptSet.content + '\n')
-      }
+      if (promptSet.outlineSystem) writeFileSync(join(personaDir, `${type}.outline.system.md`), promptSet.outlineSystem + '\n')
+      if (promptSet.outline) writeFileSync(join(personaDir, `${type}.outline.md`), promptSet.outline + '\n')
+      if (promptSet.contentSystem) writeFileSync(join(personaDir, `${type}.content.system.md`), promptSet.contentSystem + '\n')
+      if (promptSet.content) writeFileSync(join(personaDir, `${type}.content.md`), promptSet.content + '\n')
     }
   }
 }

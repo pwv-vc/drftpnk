@@ -15,14 +15,19 @@ export interface ContentMeta {
   persona: Persona
 }
 
+export interface PromptPair {
+  system: string
+  user: string
+}
+
 export interface ContentTypePlugin {
   id: string
   name: string
   description: string
   structure: PluginStructure
   validate(idea: IdeaDocument): ValidationResult
-  defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): string
-  defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): string
+  defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): PromptPair
+  defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): PromptPair
   formatOutline(response: LLMResponse): string
   formatContent(response: LLMResponse, meta: ContentMeta): string
 }

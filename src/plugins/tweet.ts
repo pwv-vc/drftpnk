@@ -1,7 +1,8 @@
 import { IdeaDocument, ValidationResult } from '../idea/types.js'
 import { Persona } from '../personas/types.js'
 import { LLMResponse } from '../llm/types.js'
-import { ContentMeta, ContentTypePlugin } from './types.js'
+import { ContentMeta, ContentTypePlugin, PromptPair } from './types.js'
+import { resolveSystemPrompt } from './defaults.js'
 
 export const tweetPlugin: ContentTypePlugin = {
   id: 'tweet',
@@ -20,34 +21,30 @@ export const tweetPlugin: ContentTypePlugin = {
     return { valid: errors.length === 0, errors }
   },
 
-  defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): string {
-    return `You are writing as ${persona.name}.
-
-${persona.system_prompt}
+  defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): PromptPair {
+    return {
+      system: resolveSystemPrompt(persona),
+      user: `Generate 3 tweet options on this topic. Each must be under 280 characters. Make them punchy and distinct.
 
 Topic: ${idea.topic}
 Theme: ${idea.theme}
 Key Ideas: ${idea.keyIdeas.join(', ')}
 
-Generate 3 tweet options on this topic. Each must be under 280 characters. Make them punchy and distinct.
-
-Return ONLY valid JSON: {"title": "Tweet Options", "subtitle": "", "body": "<3 numbered tweet options, one per line>"}`
+Return ONLY valid JSON: {"title": "Tweet Options", "subtitle": "", "body": "<3 numbered tweet options, one per line>"}`,
+    }
   },
 
-  defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): string {
-    return `You are writing as ${persona.name}.
-
-${persona.system_prompt}
-
-${persona.do_not ? `Do NOT:\n- ${persona.do_not.join('\n- ')}` : ''}
+  defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): PromptPair {
+    return {
+      system: resolveSystemPrompt(persona),
+      user: `Write the single best tweet (max 280 characters) as ${persona.name}. No hashtags unless essential.
 
 Topic: ${idea.topic}
 Outline / options:
 ${outline ?? ''}
 
-Write the single best tweet (max 280 characters). No hashtags unless essential.
-
-Return ONLY valid JSON: {"title": "", "subtitle": "", "body": "<tweet text only>"}`
+Return ONLY valid JSON: {"title": "", "subtitle": "", "body": "<tweet text only>"}`,
+    }
   },
 
   formatOutline(response: LLMResponse): string {
