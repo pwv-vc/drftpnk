@@ -129,6 +129,8 @@ Options:
 
 `image` automatically looks for a matching post or outline file in the same directory as the idea file and uses it to enrich the image prompt. Use `--slug` to generate multiple images per content piece (e.g. `--slug hero`, `--slug card`).
 
+The generated image prompt is saved alongside the image as `<name>.prompt.md` (e.g. `idea.blog-post.image.XYZ.prompt.md`).
+
 **Requires `FAL_KEY` environment variable** (or `image.apiKey` in config).
 
 `post` automatically looks for a matching outline file (`idea.blog-post.outline.md` for `--type blog-post`, etc.) in the same directory as the idea file. If found, it uses the outline to guide content generation. If not found, it generates content directly from the idea. Use `-o` to point to a specific outline file.
