@@ -18,6 +18,7 @@ export const linkedinPlugin: ContentTypePlugin = {
       'end with a question or insight',
     ],
   },
+  defaultAspectRatio: 'portrait_4_3',
 
   validate(idea: IdeaDocument): ValidationResult {
     const errors: string[] = []

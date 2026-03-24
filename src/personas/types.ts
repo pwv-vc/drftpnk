@@ -5,6 +5,13 @@ export interface PersonaStyle {
   tone_rules: string[]
 }
 
+export interface PersonaImageStyle {
+  art_style: string[]
+  color_palette?: string[]
+  mood?: string[]
+  negative_prompt?: string
+}
+
 export interface PersonaPromptSet {
   outlineSystem?: string
   outline?: string
@@ -22,6 +29,8 @@ export interface Persona {
   description: string
   style: PersonaStyle
   system_prompt: string
+  image_style?: PersonaImageStyle
+  image_style_prompt?: string
   do_not?: string[]
   prompts?: PersonaPrompts
   source_urls?: string[]

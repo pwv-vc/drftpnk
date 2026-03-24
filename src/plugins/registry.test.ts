@@ -8,9 +8,10 @@ function makePlugin(id: string): ContentTypePlugin {
     name: `Plugin ${id}`,
     description: `Description for ${id}`,
     structure: { sections: [], wordCountTarget: 100 },
+    defaultAspectRatio: 'landscape_4_3',
     validate: () => ({ valid: true, errors: [] }),
-    defaultOutlinePrompt: () => '',
-    defaultContentPrompt: () => '',
+    defaultOutlinePrompt: () => ({ system: '', user: '' }),
+    defaultContentPrompt: () => ({ system: '', user: '' }),
     formatOutline: () => '',
     formatContent: () => '',
   }

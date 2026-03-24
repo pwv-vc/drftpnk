@@ -12,6 +12,7 @@ export const blogPostPlugin: ContentTypePlugin = {
     sections: ['Hook', 'Context', 'Core Argument', 'Evidence / Examples', 'Conclusion'],
     wordCountTarget: 900,
   },
+  defaultAspectRatio: 'landscape_16_9',
 
   validate(idea: IdeaDocument): ValidationResult {
     const errors: string[] = []

@@ -19,6 +19,16 @@ export interface OutlineConfig {
   require_outline_for_post: boolean
 }
 
+export interface ImageConfig {
+  model: string
+  apiKey?: string
+}
+
+export interface ImageOverride {
+  model?: string
+  aspect_ratio?: string
+}
+
 export interface DrftpnkConfig {
   default_persona: string
   default_content_type: string
@@ -26,4 +36,6 @@ export interface DrftpnkConfig {
   outline: OutlineConfig
   llm: LLMConfig
   llm_by_content_type?: Record<string, LLMOverride>
+  image?: ImageConfig
+  image_by_content_type?: Record<string, ImageOverride>
 }

@@ -13,6 +13,7 @@ export const tweetPlugin: ContentTypePlugin = {
     wordCountTarget: 280,
     platformRules: ['max 280 characters', 'no markdown', 'conversational', 'no hashtags unless essential'],
   },
+  defaultAspectRatio: 'square_hd',
 
   validate(idea: IdeaDocument): ValidationResult {
     const errors: string[] = []

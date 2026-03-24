@@ -1,7 +1,6 @@
 import { statSync } from 'fs'
 import { Command } from 'commander'
 import { existsSync, readFileSync } from 'fs'
-import { join, dirname } from 'path'
 import ora from 'ora'
 import pc from 'picocolors'
 import { parseIdeaFile } from '../idea/parser.js'
@@ -10,14 +9,13 @@ import { loadPersona } from '../personas/index.js'
 import { pluginRegistry } from '../plugins/index.js'
 import { generate, buildContentPrompt, resolveModelConfig, resolveContentPromptSources } from '../generator.js'
 import { formatOutput } from '../output/formatter.js'
-import { getOutputPath, writeOutput } from '../output/writer.js'
+import { autoDetectOutlinePath, getOutputPath, writeOutput } from '../output/writer.js'
 import { promptAndPreview } from '../output/preview.js'
 import { printSummary } from '../output/summary.js'
 import { createDebugger } from '../debug.js'
 
 function autoDetectOutline(ideaFile: string, pluginId: string): string | undefined {
-  const dir = dirname(ideaFile)
-  const outlinePath = join(dir, `idea.${pluginId}.outline.md`)
+  const outlinePath = autoDetectOutlinePath(ideaFile, pluginId)
   if (existsSync(outlinePath)) return outlinePath
   return undefined
 }

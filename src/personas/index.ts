@@ -13,6 +13,12 @@ function loadPromptFiles(personaDir: string): PersonaPrompts {
   for (const file of readdirSync(personaDir)) {
     const content = readFileSync(join(personaDir, file), 'utf-8').trim()
 
+    if (file === 'image.md') {
+      if (!prompts['image']) prompts['image'] = {}
+      prompts['image'].content = content
+      continue
+    }
+
     let match: RegExpMatchArray | null
 
     match = file.match(/^(.+)\.(outline|content)\.system\.md$/)
@@ -34,8 +40,8 @@ function loadPromptFiles(personaDir: string): PersonaPrompts {
   return prompts
 }
 
-function loadSystemPromptFile(personaDir: string): string | undefined {
-  const path = join(personaDir, 'system_prompt.md')
+function loadMdFile(personaDir: string, filename: string): string | undefined {
+  const path = join(personaDir, filename)
   if (existsSync(path)) return readFileSync(path, 'utf-8').trim()
   return undefined
 }
@@ -44,8 +50,11 @@ function readPersonaFile(filePath: string, personaDir: string): Persona | null {
   try {
     const persona = JSON.parse(readFileSync(filePath, 'utf-8')) as Persona
 
-    const systemPrompt = loadSystemPromptFile(personaDir)
+    const systemPrompt = loadMdFile(personaDir, 'system_prompt.md')
     if (systemPrompt) persona.system_prompt = systemPrompt
+
+    const imageStylePrompt = loadMdFile(personaDir, 'image-style.md')
+    if (imageStylePrompt) persona.image_style_prompt = imageStylePrompt
 
     const prompts = loadPromptFiles(personaDir)
     if (Object.keys(prompts).length > 0) persona.prompts = prompts
@@ -96,12 +105,13 @@ export function savePersona(persona: Persona, global = false): void {
 
   if (!existsSync(baseDir)) mkdirSync(baseDir, { recursive: true })
 
-  const { system_prompt, prompts, ...jsonFields } = persona
+  const { system_prompt, image_style_prompt, prompts, ...jsonFields } = persona
   writeFileSync(join(baseDir, `${persona.id}.json`), JSON.stringify(jsonFields, null, 2))
 
-  if (system_prompt) {
+  if (system_prompt || image_style_prompt) {
     if (!existsSync(personaDir)) mkdirSync(personaDir, { recursive: true })
-    writeFileSync(join(personaDir, 'system_prompt.md'), system_prompt + '\n')
+    if (system_prompt) writeFileSync(join(personaDir, 'system_prompt.md'), system_prompt + '\n')
+    if (image_style_prompt) writeFileSync(join(personaDir, 'image-style.md'), image_style_prompt + '\n')
   }
 
   if (prompts) {

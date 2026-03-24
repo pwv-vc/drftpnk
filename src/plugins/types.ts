@@ -25,6 +25,7 @@ export interface ContentTypePlugin {
   name: string
   description: string
   structure: PluginStructure
+  defaultAspectRatio: string
   validate(idea: IdeaDocument): ValidationResult
   defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): PromptPair
   defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): PromptPair

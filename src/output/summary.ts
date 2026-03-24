@@ -6,9 +6,20 @@ export interface SummaryFile {
   sizeBytes: number
 }
 
+export interface ImageSummaryInfo {
+  model: string
+  width: number
+  height: number
+  aspectRatio: string
+  contentType: string
+  elapsedMs: number
+  falFileSize?: number
+}
+
 export interface SummaryData {
   files: SummaryFile[]
   usage?: LLMUsage
+  imageInfo?: ImageSummaryInfo
 }
 
 export function formatFileSize(bytes: number): string {
@@ -36,6 +47,16 @@ export function printSummary(data: SummaryData): void {
   for (const file of data.files) {
     const size = pc.dim(`(${formatFileSize(file.sizeBytes)})`)
     console.log(`  ${pc.dim('file')}    ${pc.white(file.path)}  ${size}`)
+  }
+
+  if (data.imageInfo) {
+    const img = data.imageInfo
+    const elapsed = (img.elapsedMs / 1000).toFixed(1)
+    const dims = img.width && img.height ? `${img.width}×${img.height}` : 'unknown'
+    console.log(`  ${pc.dim('image')}   ${pc.white(img.model)}`)
+    console.log(`  ${pc.dim('type')}    ${pc.white(img.contentType)}`)
+    console.log(`  ${pc.dim('dims')}    ${pc.white(dims)}  ${pc.dim(`(${img.aspectRatio})`)}`)
+    console.log(`  ${pc.dim('time')}    ${pc.white(`${elapsed}s`)}`)
   }
 
   if (data.usage) {

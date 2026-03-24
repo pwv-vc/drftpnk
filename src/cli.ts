@@ -11,6 +11,7 @@ import {
   registerConfigCommand,
   registerContentTypesCommand,
   registerPersonasCommand,
+  registerImageCommand,
 } from './commands/index.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -59,6 +60,7 @@ program
 
 registerOutlineCommand(program)
 registerPostCommand(program)
+registerImageCommand(program)
 registerConfigCommand(program)
 registerContentTypesCommand(program)
 registerPersonasCommand(program)
@@ -67,8 +69,10 @@ program.addHelpText('after', `
 Examples:
   $ drftpnk outline idea.md
   $ drftpnk post idea.md
+  $ drftpnk image idea.md
   $ drftpnk outline idea.md --type tweet
   $ drftpnk post idea.md --type linkedin
+  $ drftpnk image idea.md --type tweet --slug card
   $ drftpnk config init
   $ drftpnk personas list
   $ drftpnk personas create

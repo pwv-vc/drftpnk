@@ -23,6 +23,9 @@ export function getDefaultConfig(): DrftpnkConfig {
       temperature: 0.7,
       maxTokens: 4000,
     },
+    image: {
+      model: 'fal-ai/nano-banana-2',
+    },
   }
 }
 
@@ -69,6 +72,15 @@ export function resolveApiKey(config: DrftpnkConfig): string {
   if (config.llm.apiKey) return config.llm.apiKey
   throw new Error(
     'No API key found. Set OPENAI_API_KEY environment variable or run: drftpnk config init'
+  )
+}
+
+export function resolveImageApiKey(config: DrftpnkConfig): string {
+  const fromEnv = process.env.FAL_KEY
+  if (fromEnv) return fromEnv
+  if (config.image?.apiKey) return config.image.apiKey
+  throw new Error(
+    'No fal.ai API key found. Set FAL_KEY environment variable or add image.apiKey to your config.'
   )
 }
 
