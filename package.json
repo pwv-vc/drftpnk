@@ -1,0 +1,39 @@
+{
+  "name": "drftpnk",
+  "version": "0.0.1",
+  "description": "Persona-driven AI content generator",
+  "type": "module",
+  "bin": {
+    "drftpnk": "./dist/cli.js"
+  },
+  "main": "./dist/cli.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/cli.js",
+    "test": "vitest --run"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.0",
+    "cheerio": "^1.0.0",
+    "commander": "^12.0.0",
+    "dotenv": "^17.3.1",
+    "gradient-string": "^3.0.0",
+    "gray-matter": "^4.0.3",
+    "openai": "^4.0.0",
+    "ora": "^8.0.0",
+    "picocolors": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/gradient-string": "^1.1.6",
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
