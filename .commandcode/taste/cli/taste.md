@@ -1,0 +1,75 @@
+# Cli
+- Use pnpm as the package manager for CLI projects. Confidence: 1.00
+- Use TypeScript for CLI projects. Confidence: 0.95
+- Use tsup as the build tool for CLI projects. Confidence: 0.95
+- Use vitest for testing CLI projects. Confidence: 0.95
+- Use Commander.js for CLI command handling. Confidence: 0.95
+- Use clack for interactive user input in CLI projects. Confidence: 0.95
+- Check for existing CLI name conflicts before running npm link. Confidence: 0.95
+- Organize CLI commands in a dedicated commands folder with each module separated. Confidence: 0.95
+- Include a small 150px ASCII art welcome banner displaying the CLI name. Confidence: 0.95
+- Use lowercase flags for version and help commands (-v, --version, -h, --help). Confidence: 0.85
+- Start projects with version 0.0.1 instead of 1.0.0. Confidence: 0.85
+- Version command should output only the version number with no ASCII art, banner, or additional information. Confidence: 0.90
+- Read CLI version from package.json instead of hardcoding it in the source code. Confidence: 0.75
+- Always use ora for loading spinners in CLI projects. Confidence: 0.95
+- Use picocolors for terminal string coloring in CLI projects. Confidence: 0.90
+- Use Ink for building interactive CLI UIs in CommandCode projects. Confidence: 0.80
+- Use ink-spinner for loading animations in Ink-based CLIs. Confidence: 0.70
+- Hide internal flags from help: .addOption(new Option('--local').hideHelp()). Confidence: 0.90
+- Use pnpm.onlyBuiltDependencies in package.json to pre-approve native binary builds. Confidence: 0.60
+- Use ANSI Shadow font for ASCII art at large terminal widths and ANSI Compact for small widths. Confidence: 0.85
+- Use minimal white, gray, and black colors for ASCII art banners. Confidence: 0.85
+- For drftpnk: Use gradient-string for the ASCII art banner with a teal → green → soft-yellow gradient (colors: #00d2c8, #00d22e, #ffef9e). Confidence: 0.85
+- Check if package is publishable using `npx can-i-publish` before building or publishing. Confidence: 0.85
+- For drftpnk: Accept input via idea.md document (ideas, bullets, theme, goals, titles) instead of CLI flags. Confidence: 0.75
+- For drftpnk: Support default persona configuration so primary persona (David Thyresson) is used by default. Confidence: 0.80
+- For drftpnk: Use OpenAI SDK as the default LLM provider with a plugin architecture to support other providers (Claude, etc.). Confidence: 0.75
+- For drftpnk: Design as a multi-content-type writer with plugin architecture (blog posts first, then tweets, LinkedIn posts, etc.). Confidence: 0.75
+- For drftpnk: Always follow outline → iterate → write workflow (generate outline first, review/refine, then generate final content). Confidence: 0.85
+- For drftpnk: Support custom prompt templates per persona for flexible prompt customization. Confidence: 0.80
+- For drftpnk: Keep README up-to-date with CLI name, description, tagline, usage, examples, project structure, and setup/quick start sections. Confidence: 0.85
+- For drftpnk: When adding a new CLI command, always update the README usage section and examples to include the new command. Confidence: 0.85
+- For drftpnk: The environment variables example file is named `env.example` (not `example.nev` or `.env.example`). Confidence: 0.80
+- For drftpnk: Use Mermaid diagrams in README to illustrate usage workflows (e.g., idea → outline → post flow). Confidence: 0.75
+- For drftpnk: When writing Mermaid diagrams, always quote node labels containing special characters (&, ~, /, ., --) with double quotes for ALL node shapes including diamonds {}, and never use \n for line breaks inside node labels — flatten to a single line or restructure instead. Confidence: 0.92
+- For drftpnk: Include a persona setup wizard that prompts for name and source URLs (blog posts, writing samples) to auto-generate style profile and custom prompts for the persona. Confidence: 0.75
+- For drftpnk: Fail fast with a clear, specific error message when required idea.md sections are missing (e.g., `Error: Missing required section "Theme / Metaphor" in idea.md`). Confidence: 0.85
+- For drftpnk: Save plans and architectural decisions to `.commandcode/plans/{plan-name}.md` (not PLAN.md in root, not ~/.commandcode/plans/). Confidence: 0.85
+- For drftpnk: Stream LLM output by default so the CLI feels responsive; provide --stdout flag to print output without saving to a file. Confidence: 0.85
+- For drftpnk: Protect existing output files from being overwritten — warn the user and require --force flag to clobber. Confidence: 0.85
+- For drftpnk: Resolve API keys from environment variables first (e.g., OPENAI_API_KEY), then config file, then error. Confidence: 0.90
+- For drftpnk: LLM responses return a JSON envelope ({ title, subtitle, body }) so formatters can reliably extract title for YAML frontmatter. Confidence: 0.85
+- For drftpnk: Output filenames always include content type (e.g., idea.blog-post.outline.md, idea.tweet.md) — never omit the type segment. Confidence: 0.90
+- For drftpnk: The `post` command must automatically resolve and use the outline file derived from the input document (e.g., `ideas/drftpnk.readme.md` → `ideas/drftpnk.readme.blog-post.outline.md`); it must NOT fall back to a generic or default outline when a document-specific outline exists. Confidence: 0.90
+- For drftpnk: Persona JSON includes a do_not array of rules; expose as {{do_not}} template variable in prompts. Confidence: 0.80
+- For drftpnk: Include persona management commands: personas list, personas show, personas set-default, personas update. Confidence: 0.80
+- For drftpnk: Include persona_name, persona_id, and persona_description in the prompt variable map in generator.ts. Confidence: 0.80
+- For drftpnk: Use dotenv for loading environment variables. Confidence: 0.70
+- For drftpnk: Write tests (vitest) as part of implementation, not as a separate afterthought — include unit tests for parsers, plugins, and LLM calls. Confidence: 0.80
+- Set the `test` script in package.json to `vitest --run` (no watch mode) so tests run once and exit. Confidence: 0.80
+- Add .commandcode/ to .gitignore. Confidence: 0.70
+- For drftpnk: Store persona prompts (system_prompt, outline, content) as separate .md files on disk rather than escaped strings inside the persona JSON, so they are human-readable and editable. Confidence: 0.80
+- For drftpnk: The `personas show` command should display human-readable formatted output (name, style, tone rules, do-not list, system prompt, prompt templates) — not raw JSON. Confidence: 0.80
+- For drftpnk: When creating a new persona, scaffold default prompt .md files from built-in templates rather than asking the LLM to generate them (LLMs produce unreliable escaped JSON strings for prompt templates). Confidence: 0.75
+- For drftpnk: After generating any content (outlines, posts, all content types), display the output file path as a reference, offer an inline preview option, and support paging through the full content with `more`. Confidence: 0.80
+- For drftpnk: Include a --debug flag that shows useful diagnostic info as content is read, processed, and written (e.g., file paths, steps, LLM calls). Confidence: 0.85
+- For drftpnk: Always display the model being used AND the prompt source during generation (not only in --debug mode) — when a persona override is active, show "persona" plus the actual filename (e.g., `persona (david-thyresson/blog-post.outline.system.md)`); when using the plugin default, show "default". Confidence: 0.92
+- For drftpnk: After generation completes, show a summary of: output files written (with file sizes), models used, cost per generation step, and total cost. Confidence: 0.85
+- For drftpnk: The outline prompt should produce 5 title options, 3 subtitle options, a 5-section outline, the central thesis in one sentence, and the best metaphorical frame for the piece. Inputs: topic, theme, goals, and key bullet points (keyIdeas). Confidence: 0.85
+- For drftpnk: Split all LLM prompts into a PromptPair { system, user } — persona identity, style rules, do_not, PWV rules, and quality checklist go in system; the task instruction, inputs (topic/theme/goals/keyIdeas/outline), and JSON output format go in user. Confidence: 0.85
+- For drftpnk: Content-type plugins own the default PromptPair (system + user) per content type; personas override (not supplement) the defaults — a persona provides its own system or user prompt which replaces the plugin default entirely. No supplement/append pattern. Use a shared resolveSystemPrompt() helper that falls back to a DEFAULT_SYSTEM_PROMPT constant when persona.system_prompt is empty. Confidence: 0.90
+- For drftpnk: David Thyresson persona style should be described as: reflective, idea-driven, culturally literate, concise, and venture-informed. Confidence: 0.80
+- For drftpnk: The post prompt should include explicit style rules (reflective, confident, warm, intellectually playful, polished), a core writing pattern (hook → central metaphor → concrete startup/AI/investing point → grounded specifics → return to metaphor), PWV-specific rules (founder-respectful, anti-hype, long-term, judgment-oriented), and a quality checklist (hook curiosity, one clear metaphor, human voice, one quotable line, closed ending). Confidence: 0.85
+- For drftpnk: Post prompt inputs should include topic, theme/framing metaphor, audience, key bullet points, and optional references. Output format: title, subtitle/deck, and blog post body with section headers in markdown, 700–1200 words, no emojis, no hashtags, no fake citations. Confidence: 0.85
+- For drftpnk: David Thyresson post prompt writing rules: use short declarative sentences for emphasis, use contrast/triplets/aphoristic lines, prefer memorable phrasing over exhaustive explanation, never sound like a press release, avoid generic venture clichés and empty optimism. Confidence: 0.80
+- For drftpnk: Post prompts must explicitly forbid AI writing clichés — especially em-dashes (—), but also overused filler phrases and AI-sounding constructions. Confidence: 0.85
+- For drftpnk: Use `@fal-ai/client` (`import { fal } from "@fal-ai/client"`) for image generation; use `fal.subscribe()` (not webhooks) since the CLI has no server to receive webhook callbacks. Confidence: 0.80
+- For drftpnk: Default image generation model is `fal-ai/nano-banana-2`; support per-content-type model and aspect ratio overrides in config. Confidence: 0.75
+- For drftpnk: Image output filenames follow the pattern `{ideaBase}.{contentType}.{slug}.{falImageName}.png` — append the fal.ai image filename/hash from the returned URL to the output path so repeated generations never conflict and `--force` is not needed (e.g., `idea.blog-post.image.XRdMhNH9TDuA3XyGLveJE.png`). Confidence: 0.80
+- For drftpnk: Image generation summary and --debug output should include: image content-type (e.g., image/png), generation cost, performance/timing, and file size of the saved image. Confidence: 0.75
+- For drftpnk: Default aspect ratios by content type: blog-post → `landscape_16_9`, tweet → `square_hd`, linkedin → `portrait_4_3`. Confidence: 0.75
+- For drftpnk: Persona JSON supports an `image_style` field (art_style, color_palette, mood, negative_prompt) used as art direction when generating image prompts via LLM. Confidence: 0.75
+- For drftpnk: David Thyresson persona blog post image style should be: minimalist terminal UI illustration, dark mode GitHub README style, Blade Runner inspired, black background with soft gradient, neon green and cyan accent colors, monospaced typography, clean CLI interface, glowing text and subtle blur bloom, futuristic developer tool vibe, centered composition, high contrast, modern dev aesthetic, smooth rounded UI elements, glassy overlay panels, crisp vector lines, minimal noise, elegant and polished, hacker + startup branding style. Confidence: 0.90
+- For drftpnk: Persona image art style should be definable in `.md` files (e.g., `personas/{id}/image-style.md`) the same way content prompts are stored as `.md` files — not only as JSON fields in the persona JSON. Confidence: 0.80
+- For drftpnk: When saving a generated image file, also save the AI image generation prompt to a sidecar file using the same base filename with a `.prompt.md` suffix (e.g., `idea.blog-post.image.XRdMhNH9TDuA3XyGLveJE.prompt.md`). Confidence: 0.85

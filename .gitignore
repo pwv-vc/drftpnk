@@ -24,5 +24,3 @@ coverage/
 # pnpm
 .pnp.*
 
-# CommandCode
-.commandcode/
