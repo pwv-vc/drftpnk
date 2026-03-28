@@ -36,7 +36,6 @@
 - For drftpnk: When writing Mermaid diagrams, always quote node labels containing special characters (&, ~, /, ., --) with double quotes for ALL node shapes including diamonds {}, and never use \n for line breaks inside node labels — flatten to a single line or restructure instead. Confidence: 0.92
 - For drftpnk: Include a persona setup wizard that prompts for name and source URLs (blog posts, writing samples) to auto-generate style profile and custom prompts for the persona. Confidence: 0.75
 - For drftpnk: Fail fast with a clear, specific error message when required idea.md sections are missing (e.g., `Error: Missing required section "Theme / Metaphor" in idea.md`). Confidence: 0.85
-- For drftpnk: Save plans and architectural decisions to `.commandcode/plans/{plan-name}.md` (not PLAN.md in root, not ~/.commandcode/plans/). Confidence: 0.85
 - For drftpnk: Stream LLM output by default so the CLI feels responsive; provide --stdout flag to print output without saving to a file. Confidence: 0.85
 - For drftpnk: Protect existing output files from being overwritten — warn the user and require --force flag to clobber. Confidence: 0.85
 - For drftpnk: Resolve API keys from environment variables first (e.g., OPENAI_API_KEY), then config file, then error. Confidence: 0.90
@@ -49,7 +48,6 @@
 - For drftpnk: Use dotenv for loading environment variables. Confidence: 0.70
 - For drftpnk: Write tests (vitest) as part of implementation, not as a separate afterthought — include unit tests for parsers, plugins, and LLM calls. Confidence: 0.80
 - Set the `test` script in package.json to `vitest --run` (no watch mode) so tests run once and exit. Confidence: 0.80
-- Add .commandcode/ to .gitignore. Confidence: 0.70
 - For drftpnk: Store persona prompts (system_prompt, outline, content) as separate .md files on disk rather than escaped strings inside the persona JSON, so they are human-readable and editable. Confidence: 0.80
 - For drftpnk: The `personas show` command should display human-readable formatted output (name, style, tone rules, do-not list, system prompt, prompt templates) — not raw JSON. Confidence: 0.80
 - For drftpnk: When creating a new persona, scaffold default prompt .md files from built-in templates rather than asking the LLM to generate them (LLMs produce unreliable escaped JSON strings for prompt templates). Confidence: 0.75
