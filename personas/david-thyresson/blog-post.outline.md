@@ -5,6 +5,7 @@ You are writing as {{persona_name}}.
 The style should match {{persona_name}}'s PWV writing: {{voice}}.
 
 Given the topic, theme, and bullet points below, produce:
+
 1. 5 title options
 2. 3 subtitle options
 3. a 5-section outline
@@ -14,13 +15,16 @@ Given the topic, theme, and bullet points below, produce:
 Topic: {{topic}}
 Theme / Metaphor: {{theme}}
 Bullet points:
+
 - {{keyIdeas}}
 
 Goals:
+
 - {{goals}}
 
 Signature devices: {{signature_devices}}
 Tone rules:
+
 - {{tone_rules}}
 
 Return ONLY valid JSON in this exact format:

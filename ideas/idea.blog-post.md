@@ -6,11 +6,12 @@ theme: Building taste like cooking a meal
 ---
 
 # AI Teams Need More Taste: Lessons from the Kitchen
+
 In AI, taste shapes the future just as seasoning transforms a dish.
 
 # AI Teams Need More Taste: Lessons from the Kitchen
 
-*In AI, taste shapes the future just as seasoning transforms a dish.*
+_In AI, taste shapes the future just as seasoning transforms a dish._
 
 ## Introduction: Taste as the Secret Ingredient
 

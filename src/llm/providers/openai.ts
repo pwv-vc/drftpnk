@@ -1,22 +1,22 @@
-import OpenAI from 'openai'
-import { BaseLLMProvider } from './base.js'
-import { LLMConfig, LLMProvider, LLMResponse, LLMUsage } from '../types.js'
-import { calculateCost } from '../pricing.js'
+import OpenAI from "openai";
+import { BaseLLMProvider } from "./base.js";
+import { LLMConfig, LLMProvider, LLMResponse, LLMUsage } from "../types.js";
+import { calculateCost } from "../pricing.js";
 
 export class OpenAIProvider extends BaseLLMProvider implements LLMProvider {
-  private client: OpenAI
-  private config: LLMConfig
+  private client: OpenAI;
+  private config: LLMConfig;
 
   constructor(config: LLMConfig) {
-    super()
-    this.config = config
-    this.client = new OpenAI({ apiKey: config.apiKey })
+    super();
+    this.config = config;
+    this.client = new OpenAI({ apiKey: config.apiKey });
   }
 
   async generate(prompt: string, system?: string): Promise<LLMResponse> {
-    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = []
-    if (system) messages.push({ role: 'system', content: system })
-    messages.push({ role: 'user', content: prompt })
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
+    if (system) messages.push({ role: "system", content: system });
+    messages.push({ role: "user", content: prompt });
 
     const response = await this.client.chat.completions.create({
       model: this.config.model,
@@ -24,17 +24,17 @@ export class OpenAIProvider extends BaseLLMProvider implements LLMProvider {
       temperature: this.config.temperature,
       max_tokens: this.config.maxTokens,
       stream: false,
-    })
+    });
 
-    const raw = response.choices[0]?.message?.content ?? ''
-    const result = this.parseJsonResponse(raw)
+    const raw = response.choices[0]?.message?.content ?? "";
+    const result = this.parseJsonResponse(raw);
 
     if (response.usage) {
       const { inputCost, outputCost, totalCost } = calculateCost(
         this.config.model,
         response.usage.prompt_tokens,
-        response.usage.completion_tokens
-      )
+        response.usage.completion_tokens,
+      );
       result.usage = {
         model: this.config.model,
         inputTokens: response.usage.prompt_tokens,
@@ -43,20 +43,20 @@ export class OpenAIProvider extends BaseLLMProvider implements LLMProvider {
         inputCost,
         outputCost,
         totalCost,
-      }
+      };
     }
 
-    return result
+    return result;
   }
 
   async stream(
     prompt: string,
     system?: string,
-    onChunk?: (chunk: string) => void
+    onChunk?: (chunk: string) => void,
   ): Promise<LLMResponse> {
-    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = []
-    if (system) messages.push({ role: 'system', content: system })
-    messages.push({ role: 'user', content: prompt })
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
+    if (system) messages.push({ role: "system", content: system });
+    messages.push({ role: "user", content: prompt });
 
     const stream = await this.client.chat.completions.create({
       model: this.config.model,
@@ -65,30 +65,30 @@ export class OpenAIProvider extends BaseLLMProvider implements LLMProvider {
       max_tokens: this.config.maxTokens,
       stream: true,
       stream_options: { include_usage: true },
-    })
+    });
 
-    let fullText = ''
-    let rawUsage: OpenAI.CompletionUsage | undefined
+    let fullText = "";
+    let rawUsage: OpenAI.CompletionUsage | undefined;
 
     for await (const chunk of stream) {
-      const delta = chunk.choices[0]?.delta?.content ?? ''
+      const delta = chunk.choices[0]?.delta?.content ?? "";
       if (delta) {
-        fullText += delta
-        onChunk?.(delta)
+        fullText += delta;
+        onChunk?.(delta);
       }
       if (chunk.usage) {
-        rawUsage = chunk.usage
+        rawUsage = chunk.usage;
       }
     }
 
-    const result = this.parseJsonResponse(fullText)
+    const result = this.parseJsonResponse(fullText);
 
     if (rawUsage) {
       const { inputCost, outputCost, totalCost } = calculateCost(
         this.config.model,
         rawUsage.prompt_tokens,
-        rawUsage.completion_tokens
-      )
+        rawUsage.completion_tokens,
+      );
       result.usage = {
         model: this.config.model,
         inputTokens: rawUsage.prompt_tokens,
@@ -97,18 +97,18 @@ export class OpenAIProvider extends BaseLLMProvider implements LLMProvider {
         inputCost,
         outputCost,
         totalCost,
-      }
+      };
     }
 
-    return result
+    return result;
   }
 
   async validateConfig(): Promise<boolean> {
     try {
-      await this.client.models.list()
-      return true
+      await this.client.models.list();
+      return true;
     } catch {
-      return false
+      return false;
     }
   }
 }

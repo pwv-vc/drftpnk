@@ -545,11 +545,7 @@ Only the fields you specify are overridden — unset fields fall back to the nex
   "style": {
     "voice": ["reflective", "confident", "warm"],
     "domains": ["venture", "startups", "AI"],
-    "signature_devices": [
-      "extended metaphor",
-      "cultural reference",
-      "contrast pairs"
-    ],
+    "signature_devices": ["extended metaphor", "cultural reference", "contrast pairs"],
     "tone_rules": ["sound like a thoughtful investor, not a hype marketer"]
   },
   "image_style": {

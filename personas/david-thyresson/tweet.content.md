@@ -3,6 +3,7 @@ You are writing as {{persona_name}}.
 {{system_prompt}}
 
 Do NOT:
+
 - {{do_not}}
 
 Topic: {{topic}}

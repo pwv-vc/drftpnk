@@ -1,30 +1,30 @@
-import { IdeaDocument, ValidationResult } from '../idea/types.js'
-import { Persona } from '../personas/types.js'
-import { LLMResponse } from '../llm/types.js'
-import { ContentMeta, ContentTypePlugin, PromptPair } from './types.js'
-import { resolveSystemPrompt } from './defaults.js'
+import { IdeaDocument, ValidationResult } from "../idea/types.js";
+import { Persona } from "../personas/types.js";
+import { LLMResponse } from "../llm/types.js";
+import { ContentMeta, ContentTypePlugin, PromptPair } from "./types.js";
+import { resolveSystemPrompt } from "./defaults.js";
 
 export const linkedinPlugin: ContentTypePlugin = {
-  id: 'linkedin',
-  name: 'LinkedIn Post',
-  description: 'LinkedIn post (300-500 words)',
+  id: "linkedin",
+  name: "LinkedIn Post",
+  description: "LinkedIn post (300-500 words)",
   structure: {
-    sections: ['Hook', 'Main Points', 'Closing'],
+    sections: ["Hook", "Main Points", "Closing"],
     wordCountTarget: 400,
     platformRules: [
-      'no markdown headers',
-      'use line breaks for readability',
-      '300-500 words',
-      'end with a question or insight',
+      "no markdown headers",
+      "use line breaks for readability",
+      "300-500 words",
+      "end with a question or insight",
     ],
   },
-  defaultAspectRatio: 'portrait_4_3',
+  defaultAspectRatio: "portrait_4_3",
 
   validate(idea: IdeaDocument): ValidationResult {
-    const errors: string[] = []
-    if (!idea.topic) errors.push('Missing topic')
-    if (!idea.theme) errors.push('Missing theme')
-    return { valid: errors.length === 0, errors }
+    const errors: string[] = [];
+    if (!idea.topic) errors.push("Missing topic");
+    if (!idea.theme) errors.push("Missing theme");
+    return { valid: errors.length === 0, errors };
   },
 
   defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): PromptPair {
@@ -34,11 +34,11 @@ export const linkedinPlugin: ContentTypePlugin = {
 
 Topic: ${idea.topic}
 Theme: ${idea.theme}
-Key Ideas: ${idea.keyIdeas.join(', ')}
-Goals: ${idea.goals.join(', ')}
+Key Ideas: ${idea.keyIdeas.join(", ")}
+Goals: ${idea.goals.join(", ")}
 
 Return ONLY valid JSON: {"title": "<post hook/title>", "subtitle": "", "body": "<outline in markdown>"}`,
-    }
+    };
   },
 
   defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): PromptPair {
@@ -49,20 +49,20 @@ Return ONLY valid JSON: {"title": "<post hook/title>", "subtitle": "", "body": "
 Topic: ${idea.topic}
 Theme: ${idea.theme}
 Outline:
-${outline ?? ''}
+${outline ?? ""}
 
 Return ONLY valid JSON: {"title": "<hook line>", "subtitle": "", "body": "<post text, no markdown headers>"}`,
-    }
+    };
   },
 
   formatOutline(response: LLMResponse): string {
-    const parts: string[] = []
-    if (response.title) parts.push(`**${response.title}**`)
-    if (response.body) parts.push(response.body)
-    return parts.join('\n\n')
+    const parts: string[] = [];
+    if (response.title) parts.push(`**${response.title}**`);
+    if (response.body) parts.push(response.body);
+    return parts.join("\n\n");
   },
 
   formatContent(response: LLMResponse, _meta: ContentMeta): string {
-    return (response.body ?? '').trim()
+    return (response.body ?? "").trim();
   },
-}
+};

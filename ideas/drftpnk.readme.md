@@ -62,20 +62,20 @@ drftpnk <command> [options]
 
 ### Commands
 
-| Command | Description |
-|---|---|
-| `outline <idea-file>` | Generate an outline from an idea file |
-| `post <idea-file>` | Generate full content from an idea file |
-| `image <idea-file>` | Generate an image for content using fal.ai |
-| `config init` | Initialize user configuration |
-| `config show` | Show current configuration |
-| `content-types list` | List available content types |
-| `content-types show <type>` | Show content type details |
-| `personas list` | List available personas |
-| `personas show <id>` | Show persona details and prompts |
-| `personas set-default <id>` | Set the default persona |
-| `personas create` | Create a new persona (wizard) |
-| `personas update <id>` | Update persona with new writing samples |
+| Command                     | Description                                |
+| --------------------------- | ------------------------------------------ |
+| `outline <idea-file>`       | Generate an outline from an idea file      |
+| `post <idea-file>`          | Generate full content from an idea file    |
+| `image <idea-file>`         | Generate an image for content using fal.ai |
+| `config init`               | Initialize user configuration              |
+| `config show`               | Show current configuration                 |
+| `content-types list`        | List available content types               |
+| `content-types show <type>` | Show content type details                  |
+| `personas list`             | List available personas                    |
+| `personas show <id>`        | Show persona details and prompts           |
+| `personas set-default <id>` | Set the default persona                    |
+| `personas create`           | Create a new persona (wizard)              |
+| `personas update <id>`      | Update persona with new writing samples    |
 
 ### Options
 
@@ -266,11 +266,11 @@ drftpnk image idea.md --slug thumbnail
 
 **Default aspect ratios by content type:**
 
-| Content Type | Aspect Ratio | Notes |
-|---|---|---|
-| `blog-post` | `landscape_16_9` | Hero / banner image |
-| `tweet` | `square_hd` | Twitter card |
-| `linkedin` | `portrait_4_3` | LinkedIn post image |
+| Content Type | Aspect Ratio     | Notes               |
+| ------------ | ---------------- | ------------------- |
+| `blog-post`  | `landscape_16_9` | Hero / banner image |
+| `tweet`      | `square_hd`      | Twitter card        |
+| `linkedin`   | `portrait_4_3`   | LinkedIn post image |
 
 fal.ai aspect ratio options: `square_hd`, `square`, `portrait_4_3`, `portrait_16_9`, `landscape_4_3`, `landscape_16_9`
 
@@ -334,36 +334,45 @@ drftpnk post idea.md --stdout       # streams to terminal, no file saved
 
 ```markdown
 # Topic
+
 <one-line topic statement>
 
 ## Theme / Metaphor
+
 <central metaphor or framing device>
 
 ## Goals
+
 - <goal 1>
 - <goal 2>
 
 ## Key Ideas / Bullets
+
 - <key idea 1>
 - <key idea 2>
 
 ## Possible Titles
+
 - <title option 1>
 - <title option 2>
 
 ## References / Examples
+
 - <reference or example>
 
 ## Audience
+
 <target audience description>
 
 ## Word Count Target
+
 900
 ```
 
 **Required sections**: Topic, Theme / Metaphor, Goals, Key Ideas / Bullets
 
 Missing a required section exits immediately with:
+
 ```
 Error: Missing required section "Theme / Metaphor" in idea.md
 ```
@@ -373,6 +382,7 @@ Error: Missing required section "Theme / Metaphor" in idea.md
 ## Configuration
 
 Config is loaded from (in order, project overrides user):
+
 1. `~/.drftpnk/config.json` (user-level)
 2. `.drftpnk/config.json` (project-level)
 
@@ -463,6 +473,7 @@ personas/
 ```
 
 Personas are loaded from two locations (project takes precedence over user-level):
+
 - `personas/` — project-level, committed to the repo
 - `~/.drftpnk/personas/` — user-level, global across projects
 
@@ -509,11 +520,11 @@ Personas can specify their own model preferences in their JSON file. Use `llm` f
 
 **Resolution order** (most specific wins):
 
-| Priority | Source | Example |
-|---|---|---|
-| 1 (lowest) | `config.llm` | global default |
-| 2 | `config.llm_by_content_type[type]` | all personas, this content type |
-| 3 | `persona.llm` | this persona, all content types |
+| Priority    | Source                              | Example                         |
+| ----------- | ----------------------------------- | ------------------------------- |
+| 1 (lowest)  | `config.llm`                        | global default                  |
+| 2           | `config.llm_by_content_type[type]`  | all personas, this content type |
+| 3           | `persona.llm`                       | this persona, all content types |
 | 4 (highest) | `persona.llm_by_content_type[type]` | this persona, this content type |
 
 Only the fields you specify are overridden — unset fields fall back to the next level. For example, setting `persona.llm.model` only changes the model; temperature and maxTokens still come from `config.llm`.
@@ -557,37 +568,37 @@ personas/david-thyresson/
 
 Prompt `.md` files support `{{variable}}` substitution:
 
-| Variable | Value |
-|---|---|
-| `{{topic}}` | Idea topic |
-| `{{theme}}` | Idea theme / metaphor |
-| `{{goals}}` | Goals (joined) |
-| `{{keyIdeas}}` | Key ideas (joined) |
-| `{{possibleTitles}}` | Possible titles (joined) |
-| `{{references}}` | References (joined) |
-| `{{audience}}` | Target audience |
-| `{{wordCountTarget}}` | Word count target |
-| `{{voice}}` | Persona voice (joined) |
-| `{{signature_devices}}` | Signature devices (joined) |
-| `{{tone_rules}}` | Tone rules (joined) |
-| `{{system_prompt}}` | Full system prompt |
-| `{{do_not}}` | Do-not rules (joined) |
-| `{{persona_name}}` | Persona name |
-| `{{persona_id}}` | Persona ID |
-| `{{persona_description}}` | Persona description |
-| `{{outline}}` | Generated outline (content prompts only) |
-| `{{plugin_name}}` | Plugin name |
-| `{{plugin_word_count}}` | Plugin word count target |
+| Variable                  | Value                                    |
+| ------------------------- | ---------------------------------------- |
+| `{{topic}}`               | Idea topic                               |
+| `{{theme}}`               | Idea theme / metaphor                    |
+| `{{goals}}`               | Goals (joined)                           |
+| `{{keyIdeas}}`            | Key ideas (joined)                       |
+| `{{possibleTitles}}`      | Possible titles (joined)                 |
+| `{{references}}`          | References (joined)                      |
+| `{{audience}}`            | Target audience                          |
+| `{{wordCountTarget}}`     | Word count target                        |
+| `{{voice}}`               | Persona voice (joined)                   |
+| `{{signature_devices}}`   | Signature devices (joined)               |
+| `{{tone_rules}}`          | Tone rules (joined)                      |
+| `{{system_prompt}}`       | Full system prompt                       |
+| `{{do_not}}`              | Do-not rules (joined)                    |
+| `{{persona_name}}`        | Persona name                             |
+| `{{persona_id}}`          | Persona ID                               |
+| `{{persona_description}}` | Persona description                      |
+| `{{outline}}`             | Generated outline (content prompts only) |
+| `{{plugin_name}}`         | Plugin name                              |
+| `{{plugin_word_count}}`   | Plugin word count target                 |
 
 ---
 
 ## Content Types
 
-| ID | Name | Word Count | Notes |
-|---|---|---|---|
-| `blog-post` | Blog Post | ~900 words | YAML frontmatter output |
-| `tweet` | Tweet | 280 chars | Plain text output |
-| `linkedin` | LinkedIn Post | ~400 words | Plain text output |
+| ID          | Name          | Word Count | Notes                   |
+| ----------- | ------------- | ---------- | ----------------------- |
+| `blog-post` | Blog Post     | ~900 words | YAML frontmatter output |
+| `tweet`     | Tweet         | 280 chars  | Plain text output       |
+| `linkedin`  | LinkedIn Post | ~400 words | Plain text output       |
 
 ---
 

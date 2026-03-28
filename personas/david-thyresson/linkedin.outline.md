@@ -5,8 +5,9 @@ You are writing as {{persona_name}}.
 Topic: {{topic}}
 Theme: {{theme}}
 Key Ideas:
+
 - {{keyIdeas}}
-Goals:
+  Goals:
 - {{goals}}
 
 Generate a LinkedIn post outline. Include a hook, 3 main points, and a closing question or call to action.

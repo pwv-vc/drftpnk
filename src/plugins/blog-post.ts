@@ -1,26 +1,26 @@
-import { IdeaDocument, ValidationResult } from '../idea/types.js'
-import { Persona } from '../personas/types.js'
-import { LLMResponse } from '../llm/types.js'
-import { ContentMeta, ContentTypePlugin, PromptPair } from './types.js'
-import { resolveSystemPrompt } from './defaults.js'
+import { IdeaDocument, ValidationResult } from "../idea/types.js";
+import { Persona } from "../personas/types.js";
+import { LLMResponse } from "../llm/types.js";
+import { ContentMeta, ContentTypePlugin, PromptPair } from "./types.js";
+import { resolveSystemPrompt } from "./defaults.js";
 
 export const blogPostPlugin: ContentTypePlugin = {
-  id: 'blog-post',
-  name: 'Blog Post',
-  description: 'Long-form blog post with YAML frontmatter (~900 words)',
+  id: "blog-post",
+  name: "Blog Post",
+  description: "Long-form blog post with YAML frontmatter (~900 words)",
   structure: {
-    sections: ['Hook', 'Context', 'Core Argument', 'Evidence / Examples', 'Conclusion'],
+    sections: ["Hook", "Context", "Core Argument", "Evidence / Examples", "Conclusion"],
     wordCountTarget: 900,
   },
-  defaultAspectRatio: 'landscape_16_9',
+  defaultAspectRatio: "landscape_16_9",
 
   validate(idea: IdeaDocument): ValidationResult {
-    const errors: string[] = []
-    if (!idea.topic) errors.push('Missing topic')
-    if (!idea.theme) errors.push('Missing theme')
-    if (idea.goals.length === 0) errors.push('Missing goals')
-    if (idea.keyIdeas.length === 0) errors.push('Missing key ideas')
-    return { valid: errors.length === 0, errors }
+    const errors: string[] = [];
+    if (!idea.topic) errors.push("Missing topic");
+    if (!idea.theme) errors.push("Missing theme");
+    if (idea.goals.length === 0) errors.push("Missing goals");
+    if (idea.keyIdeas.length === 0) errors.push("Missing key ideas");
+    return { valid: errors.length === 0, errors };
   },
 
   defaultOutlinePrompt(idea: IdeaDocument, persona: Persona): PromptPair {
@@ -37,12 +37,12 @@ export const blogPostPlugin: ContentTypePlugin = {
 Topic: ${idea.topic}
 Theme / Metaphor: ${idea.theme}
 Goals:
-${idea.goals.map((g) => `- ${g}`).join('\n')}
+${idea.goals.map((g) => `- ${g}`).join("\n")}
 Bullet points:
-${idea.keyIdeas.map((k) => `- ${k}`).join('\n')}
+${idea.keyIdeas.map((k) => `- ${k}`).join("\n")}
 
 Return ONLY valid JSON: {"title": "<best title>", "subtitle": "<one-line thesis>", "body": "<full structured outline in markdown with all 5 titles, 3 subtitles, 5-section outline, thesis, and metaphorical frame>"}`,
-    }
+    };
   },
 
   defaultContentPrompt(idea: IdeaDocument, persona: Persona, outline?: string): PromptPair {
@@ -80,13 +80,13 @@ FORMAT RULES
 
 Topic: ${idea.topic}
 Theme / framing metaphor: ${idea.theme}
-${idea.audience ? `Audience: ${idea.audience}` : ''}
+${idea.audience ? `Audience: ${idea.audience}` : ""}
 Key bullet points:
-${idea.keyIdeas.map((k) => `- ${k}`).join('\n')}
-${idea.references?.length ? `\nReferences / facts to weave in:\n${idea.references.map((r) => `- ${r}`).join('\n')}` : ''}
+${idea.keyIdeas.map((k) => `- ${k}`).join("\n")}
+${idea.references?.length ? `\nReferences / facts to weave in:\n${idea.references.map((r) => `- ${r}`).join("\n")}` : ""}
 
 Outline to follow:
-${outline ?? ''}
+${outline ?? ""}
 
 QUALITY CHECK BEFORE FINALIZING
 - Does the opening hook immediately create curiosity?
@@ -96,31 +96,31 @@ QUALITY CHECK BEFORE FINALIZING
 - Does the ending close the loop instead of just fading out?
 
 Return ONLY valid JSON: {"title": "<post title>", "subtitle": "<one-line subtitle>", "body": "<full post in markdown, no frontmatter>"}`,
-    }
+    };
   },
 
   formatOutline(response: LLMResponse): string {
-    const parts: string[] = []
-    if (response.title) parts.push(`# ${response.title}`)
-    if (response.subtitle) parts.push(`\n*${response.subtitle}*`)
-    if (response.body) parts.push(`\n${response.body}`)
-    return parts.join('\n')
+    const parts: string[] = [];
+    if (response.title) parts.push(`# ${response.title}`);
+    if (response.subtitle) parts.push(`\n*${response.subtitle}*`);
+    if (response.body) parts.push(`\n${response.body}`);
+    return parts.join("\n");
   },
 
   formatContent(response: LLMResponse, meta: ContentMeta): string {
     const frontmatter = [
-      '---',
+      "---",
       `title: ${response.title || meta.theme}`,
       `author: ${meta.author}`,
       `date: ${meta.date}`,
       `theme: ${meta.theme}`,
-      '---',
-    ].join('\n')
+      "---",
+    ].join("\n");
 
-    const body = response.body ?? ''
-    const titleLine = response.title ? `# ${response.title}` : ''
-    const subtitleLine = response.subtitle ? `\n${response.subtitle}` : ''
+    const body = response.body ?? "";
+    const titleLine = response.title ? `# ${response.title}` : "";
+    const subtitleLine = response.subtitle ? `\n${response.subtitle}` : "";
 
-    return `${frontmatter}\n\n${titleLine}${subtitleLine}\n\n${body}`
+    return `${frontmatter}\n\n${titleLine}${subtitleLine}\n\n${body}`;
   },
-}
+};

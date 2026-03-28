@@ -1,4 +1,5 @@
 # Cli
+
 - Use pnpm as the package manager for CLI projects. Confidence: 1.00
 - Use TypeScript for CLI projects. Confidence: 0.95
 - Use tsup as the build tool for CLI projects. Confidence: 0.95
@@ -73,3 +74,6 @@
 - For drftpnk: David Thyresson persona blog post image style should be: minimalist terminal UI illustration, dark mode GitHub README style, Blade Runner inspired, black background with soft gradient, neon green and cyan accent colors, monospaced typography, clean CLI interface, glowing text and subtle blur bloom, futuristic developer tool vibe, centered composition, high contrast, modern dev aesthetic, smooth rounded UI elements, glassy overlay panels, crisp vector lines, minimal noise, elegant and polished, hacker + startup branding style. Confidence: 0.90
 - For drftpnk: Persona image art style should be definable in `.md` files (e.g., `personas/{id}/image-style.md`) the same way content prompts are stored as `.md` files — not only as JSON fields in the persona JSON. Confidence: 0.80
 - For drftpnk: When saving a generated image file, also save the AI image generation prompt to a sidecar file using the same base filename with a `.prompt.md` suffix (e.g., `idea.blog-post.image.XRdMhNH9TDuA3XyGLveJE.prompt.md`). Confidence: 0.85
+- Use oxc.rs for linting and formatting instead of Prettier. Confidence: 0.75
+- When setting up oxc.rs, follow the official quickstart guide at https://oxc.rs/docs/guide/usage/formatter/quickstart.html. Confidence: 0.80
+- For drftpnk: Always run format check after build step in the build workflow (build → fmt → fmt:check) by adding to package.json scripts. Confidence: 0.85

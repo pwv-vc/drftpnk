@@ -5,6 +5,7 @@ You are writing as {{persona_name}}.
 Topic: {{topic}}
 Theme: {{theme}}
 Key Ideas:
+
 - {{keyIdeas}}
 
 Generate 3 tweet options on this topic. Each must be under 280 characters. Make them punchy and distinct.
