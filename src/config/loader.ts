@@ -12,6 +12,7 @@ export function getDefaultConfig(): DrftpnkConfig {
     default_persona: "david-thyresson",
     default_content_type: "blog-post",
     output_dir: ".",
+    ideas_dir: "ideas",
     outline: {
       auto_save: true,
       naming_convention: "idea.{type}.outline.md",

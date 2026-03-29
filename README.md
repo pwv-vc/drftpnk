@@ -68,6 +68,8 @@ drftpnk <command> [options]
 
 | Command                     | Description                                |
 | --------------------------- | ------------------------------------------ |
+| `idea [title]`              | Create, edit, or delete an idea file       |
+| `ideas`                     | List all idea files                        |
 | `outline <idea-file>`       | Generate an outline from an idea file      |
 | `post <idea-file>`          | Generate full content from an idea file    |
 | `image <idea-file>`         | Generate an image for content using fal.ai |
@@ -114,6 +116,39 @@ Options:
   --force                overwrite existing output file
   --stdout               print to stdout only, do not save
   --debug                show debug info during generation
+```
+
+### idea
+
+```bash
+drftpnk idea <title> [options]
+
+Options:
+  -c, --create    create a new idea file (default)
+  -e, --edit      edit an existing idea file
+  -o, --open      open an existing idea file (alias for --edit)
+  -d, --delete    delete an idea file
+```
+
+Creates a new idea file with a markdown heading based on the title. The filename is derived from the title (e.g., `idea "build in public"` creates `idea.build-in-public.md`). Opens the file in your preferred editor (`$EDITOR` or `$VISUAL` environment variable, defaults to `vim`).
+
+```bash
+drftpnk idea "build in public"           # creates idea.build-in-public.md
+drftpnk idea build-in-public             # same as above
+drftpnk idea "build in public" --edit    # edit existing file
+drftpnk idea "build in public" --delete  # delete file
+```
+
+### ideas
+
+```bash
+drftpnk ideas
+```
+
+Lists all idea files in the `ideas/` directory. Excludes generated files (outlines, posts, tweets, LinkedIn posts, images).
+
+```bash
+drftpnk ideas
 ```
 
 ### image
@@ -397,6 +432,8 @@ Config is loaded from (in order, project overrides user):
   "default_persona": "david-thyresson",
   "default_content_type": "blog-post",
   "output_dir": ".",
+  "ideas_dir": "ideas",
+  "editor": "nano",
   "outline": {
     "auto_save": true,
     "naming_convention": "idea.{type}.outline.md",
@@ -414,6 +451,47 @@ Config is loaded from (in order, project overrides user):
 **API key resolution**: `OPENAI_API_KEY` env var → config `llm.apiKey` → error
 
 **fal.ai API key resolution**: `FAL_KEY` env var → config `image.apiKey` → error
+
+### Editor Configuration
+
+The `editor` field controls which text editor opens when creating or editing idea files. Defaults to `nano` if not specified.
+
+**Editor resolution order** (first match wins):
+
+1. `editor` config setting
+2. `$EDITOR` environment variable
+3. `$VISUAL` environment variable
+4. `nano` (fallback)
+
+**Common editor options:**
+
+| Editor           | Config Value    | Command                                       |
+| ---------------- | --------------- | --------------------------------------------- |
+| Nano             | `nano`          | `drftpnk config init` → enter `nano`          |
+| Vi               | `vi`            | `drftpnk config init` → enter `vi`            |
+| Vim              | `vim`           | `drftpnk config init` → enter `vim`           |
+| Pico             | `pico`          | `drftpnk config init` → enter `pico`          |
+| TextEdit (macOS) | `open -t`       | `drftpnk config init` → enter `open -t`       |
+| VS Code          | `code --wait`   | `drftpnk config init` → enter `code --wait`   |
+| Cursor           | `cursor --wait` | `drftpnk config init` → enter `cursor --wait` |
+| Emacs            | `emacs`         | `drftpnk config init` → enter `emacs`         |
+
+**Examples:**
+
+```bash
+# Set editor via config init (interactive)
+drftpnk config init
+# When prompted: "Editor for idea files (leave blank for nano):" → enter your choice
+
+# Or manually edit ~/.drftpnk/config.json
+{
+  "editor": "code --wait"
+}
+
+# Or use environment variable (overrides config)
+export EDITOR=vim
+drftpnk idea "my idea"
+```
 
 ### Image Generation Configuration
 

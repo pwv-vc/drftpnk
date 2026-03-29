@@ -53,10 +53,33 @@ export function registerConfigCommand(program: Command): void {
         process.exit(0);
       }
 
+      const ideasDir = await p.text({
+        message: "Ideas directory:",
+        placeholder: "ideas",
+        initialValue: "ideas",
+      });
+
+      if (p.isCancel(ideasDir)) {
+        p.cancel("Cancelled.");
+        process.exit(0);
+      }
+
+      const editor = await p.text({
+        message: "Editor for idea files (leave blank for nano):",
+        placeholder: "nano",
+      });
+
+      if (p.isCancel(editor)) {
+        p.cancel("Cancelled.");
+        process.exit(0);
+      }
+
       const config: Partial<DrftpnkConfig> = {
         default_persona: String(defaultPersona) || "david-thyresson",
         default_content_type: "blog-post",
         output_dir: ".",
+        ideas_dir: String(ideasDir) || "ideas",
+        ...(editor ? { editor: String(editor) } : {}),
         outline: {
           auto_save: true,
           naming_convention: "idea.{type}.outline.md",

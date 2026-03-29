@@ -1,6 +1,6 @@
 import { statSync } from "fs";
 import { Command } from "commander";
-import { existsSync, readFileSync } from "fs";
+import { statSync } from "fs";
 import ora from "ora";
 import pc from "picocolors";
 import { parseIdeaFile } from "../idea/parser.js";
@@ -18,12 +18,9 @@ import { autoDetectOutlinePath, getOutputPath, writeOutput } from "../output/wri
 import { promptAndPreview } from "../output/preview.js";
 import { printSummary } from "../output/summary.js";
 import { createDebugger } from "../debug.js";
-
-function autoDetectOutline(ideaFile: string, pluginId: string): string | undefined {
-  const outlinePath = autoDetectOutlinePath(ideaFile, pluginId);
-  if (existsSync(outlinePath)) return outlinePath;
-  return undefined;
-}
+import { wrapCommandAction } from "../utils/error-handler.js";
+import { validateAndExit } from "../utils/validation.js";
+import { loadFileIfExists } from "../utils/file-utils.js";
 
 export function registerPostCommand(program: Command): void {
   program
@@ -36,8 +33,8 @@ export function registerPostCommand(program: Command): void {
     .option("--force", "overwrite existing output file")
     .option("--stdout", "print to stdout only, do not save")
     .option("--debug", "show debug info during generation")
-    .action(async (ideaFile: string, opts) => {
-      try {
+    .action(
+      wrapCommandAction(async (ideaFile: string, opts) => {
         const debug = createDebugger(!!opts.debug);
 
         const config = loadConfig();
@@ -59,26 +56,20 @@ export function registerPostCommand(program: Command): void {
         debug("plugin:", `${plugin.id} (${plugin.name})`);
 
         const validation = plugin.validate(idea);
-        if (!validation.valid) {
-          console.error(pc.red("Validation failed:"));
-          for (const err of validation.errors) {
-            console.error(pc.red(`  - ${err}`));
-          }
-          process.exit(1);
-        }
+        validateAndExit(validation);
         debug("validation:", "passed");
 
         const resolvedLlm = resolveModelConfig(config, persona, plugin);
 
         let outlineText: string | undefined;
-        const outlineFile = opts.outline ?? autoDetectOutline(ideaFile, plugin.id);
-        if (outlineFile && existsSync(outlineFile)) {
-          outlineText = readFileSync(outlineFile, "utf-8");
-          if (!opts.stdout) {
-            debug("outline:", `${outlineFile} (auto-detected)`);
-            if (!opts.debug) console.log(pc.dim(`Using outline: ${outlineFile}`));
-          }
-        } else {
+        const outlineFile = opts.outline ?? autoDetectOutlinePath(ideaFile, plugin.id);
+        outlineText = loadFileIfExists(outlineFile, {
+          debug: !opts.stdout ? debug : undefined,
+          label: "outline",
+        });
+        if (outlineText && !opts.stdout && !opts.debug) {
+          console.log(pc.dim(`Using outline: ${outlineFile}`));
+        } else if (!outlineText) {
           debug("outline:", "none found, generating from idea directly");
         }
 
@@ -148,9 +139,6 @@ export function registerPostCommand(program: Command): void {
           printSummary({ files: [{ path: outputPath, sizeBytes }], usage: response.usage });
           await promptAndPreview(outputPath, formatted);
         }
-      } catch (err) {
-        console.error(pc.red(String(err instanceof Error ? err.message : err)));
-        process.exit(1);
-      }
-    });
+      }),
+    );
 }

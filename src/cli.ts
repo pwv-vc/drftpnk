@@ -12,6 +12,8 @@ import {
   registerContentTypesCommand,
   registerPersonasCommand,
   registerImageCommand,
+  registerIdeaCommand,
+  registerIdeasCommand,
 } from "./commands/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -64,11 +66,15 @@ registerImageCommand(program);
 registerConfigCommand(program);
 registerContentTypesCommand(program);
 registerPersonasCommand(program);
+registerIdeaCommand(program);
+registerIdeasCommand(program);
 
 program.addHelpText(
   "after",
   `
 Examples:
+  $ drftpnk idea "build in public"
+  $ drftpnk ideas
   $ drftpnk outline idea.md
   $ drftpnk post idea.md
   $ drftpnk image idea.md

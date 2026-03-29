@@ -1,6 +1,4 @@
 import { statSync } from "fs";
-import { existsSync, readFileSync } from "fs";
-import { join, dirname } from "path";
 import { Command } from "commander";
 import ora from "ora";
 import pc from "picocolors";
@@ -13,19 +11,9 @@ import { printSummary } from "../output/summary.js";
 import { createDebugger } from "../debug.js";
 import { generateImagePrompt } from "../image/prompt.js";
 import { generateImage, resolveImageConfig } from "../image/fal.js";
-
-function autoDetectContext(ideaFile: string, pluginId: string): string | undefined {
-  const dir = dirname(ideaFile);
-  const base = ideaFile.replace(/\.md$/, "").split("/").pop() ?? "";
-
-  const postPath = join(dir, `${base}.${pluginId}.md`);
-  if (existsSync(postPath)) return postPath;
-
-  const outlinePath = join(dir, `${base}.${pluginId}.outline.md`);
-  if (existsSync(outlinePath)) return outlinePath;
-
-  return undefined;
-}
+import { wrapCommandAction } from "../utils/error-handler.js";
+import { validateAndExit } from "../utils/validation.js";
+import { autoDetectContextFile, loadFileIfExists } from "../utils/file-utils.js";
 
 export function registerImageCommand(program: Command): void {
   program
@@ -37,8 +25,8 @@ export function registerImageCommand(program: Command): void {
     .option("--model <model>", "fal.ai model override")
     .option("--aspect-ratio <ratio>", "aspect ratio override (e.g. square_hd, landscape_16_9)")
     .option("--debug", "show debug info during generation")
-    .action(async (ideaFile: string, opts) => {
-      try {
+    .action(
+      wrapCommandAction(async (ideaFile: string, opts) => {
         const debug = createDebugger(!!opts.debug);
 
         const config = loadConfig();
@@ -59,12 +47,9 @@ export function registerImageCommand(program: Command): void {
         const plugin = pluginRegistry.get(contentType);
         debug("plugin:", `${plugin.id} (${plugin.name})`);
 
-        const contextFile = autoDetectContext(ideaFile, plugin.id);
-        let context: string | undefined;
-        if (contextFile && existsSync(contextFile)) {
-          context = readFileSync(contextFile, "utf-8");
-          debug("context:", contextFile);
-        } else {
+        const contextFile = autoDetectContextFile(ideaFile, plugin.id, ["post", "outline"]);
+        const context = loadFileIfExists(contextFile, { debug, label: "context" });
+        if (!context) {
           debug("context:", "none found, using idea only");
         }
 
@@ -154,9 +139,6 @@ export function registerImageCommand(program: Command): void {
             },
           });
         }
-      } catch (err) {
-        console.error(pc.red(String(err instanceof Error ? err.message : err)));
-        process.exit(1);
-      }
-    });
+      }),
+    );
 }

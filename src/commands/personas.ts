@@ -7,6 +7,7 @@ import { Persona } from "../personas/types.js";
 import { loadConfig, saveUserConfig, resolveApiKey } from "../config/loader.js";
 import { createLLMProvider } from "../llm/factory.js";
 import { LLMConfig } from "../llm/types.js";
+import { slugify } from "../idea/index.js";
 
 async function scrapeText(url: string): Promise<string> {
   const response = await fetch(url);
@@ -158,13 +159,6 @@ Return ONLY valid JSON:
 {"title": "<hook line>", "subtitle": "", "body": "<post text, no markdown headers>"}`,
     },
   };
-}
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 export function registerPersonasCommand(program: Command): void {

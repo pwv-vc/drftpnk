@@ -1,5 +1,6 @@
 import { statSync } from "fs";
 import { Command } from "commander";
+import { statSync } from "fs";
 import ora from "ora";
 import pc from "picocolors";
 import { parseIdeaFile } from "../idea/parser.js";
@@ -17,6 +18,8 @@ import { getOutputPath, writeOutput } from "../output/writer.js";
 import { promptAndPreview } from "../output/preview.js";
 import { printSummary } from "../output/summary.js";
 import { createDebugger } from "../debug.js";
+import { wrapCommandAction } from "../utils/error-handler.js";
+import { validateAndExit } from "../utils/validation.js";
 
 export function registerOutlineCommand(program: Command): void {
   program
@@ -27,8 +30,8 @@ export function registerOutlineCommand(program: Command): void {
     .option("--force", "overwrite existing outline file")
     .option("--stdout", "print to stdout only, do not save")
     .option("--debug", "show debug info during generation")
-    .action(async (ideaFile: string, opts) => {
-      try {
+    .action(
+      wrapCommandAction(async (ideaFile: string, opts) => {
         const debug = createDebugger(!!opts.debug);
 
         const config = loadConfig();
@@ -50,13 +53,7 @@ export function registerOutlineCommand(program: Command): void {
         debug("plugin:", `${plugin.id} (${plugin.name})`);
 
         const validation = plugin.validate(idea);
-        if (!validation.valid) {
-          console.error(pc.red("Validation failed:"));
-          for (const err of validation.errors) {
-            console.error(pc.red(`  - ${err}`));
-          }
-          process.exit(1);
-        }
+        validateAndExit(validation);
         debug("validation:", "passed");
 
         const resolvedLlm = resolveModelConfig(config, persona, plugin);
@@ -128,9 +125,6 @@ export function registerOutlineCommand(program: Command): void {
           printSummary({ files: [{ path: outputPath, sizeBytes }], usage: response.usage });
           await promptAndPreview(outputPath, formatted);
         }
-      } catch (err) {
-        console.error(pc.red(String(err instanceof Error ? err.message : err)));
-        process.exit(1);
-      }
-    });
+      }),
+    );
 }

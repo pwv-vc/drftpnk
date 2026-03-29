@@ -33,6 +33,8 @@ export interface DrftpnkConfig {
   default_persona: string;
   default_content_type: string;
   output_dir: string;
+  ideas_dir: string;
+  editor?: string;
   outline: OutlineConfig;
   llm: LLMConfig;
   llm_by_content_type?: Record<string, LLMOverride>;

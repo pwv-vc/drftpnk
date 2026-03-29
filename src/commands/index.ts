@@ -4,3 +4,5 @@ export { registerConfigCommand } from "./config.js";
 export { registerContentTypesCommand } from "./content-types.js";
 export { registerPersonasCommand } from "./personas.js";
 export { registerImageCommand } from "./image.js";
+export { registerIdeaCommand } from "./idea.js";
+export { registerIdeasCommand } from "./ideas.js";
